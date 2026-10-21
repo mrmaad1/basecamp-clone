@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basecamp Pro</title>
+    <title>Basecamp Pro UX</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,7 +21,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased">
 
-    <!-- NAVBAR -->
+    <!-- NAVBAR WITH UNREAD BADGES -->
     <header class="bg-white border-b border-gray-300 px-4 py-2 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center space-x-6">
             <div class="flex items-center space-x-2 cursor-pointer" onclick="showView('dashboard-box')">
@@ -34,8 +34,12 @@
             </nav>
         </div>
         <nav class="hidden md:flex space-x-1 items-center">
-            <button onclick="openGlobalFeature('pings')" class="px-3 py-1.5 text-sm font-medium rounded-full hover:bg-gray-100">Pings</button>
-            <button onclick="openGlobalFeature('hey')" class="px-3 py-1.5 text-sm font-medium rounded-full hover:bg-gray-100">Hey!</button>
+            <button onclick="openGlobalFeature('pings')" class="relative px-3 py-1.5 text-sm font-medium rounded-full hover:bg-gray-100">
+                Pings <span id="ping-badge" class="hidden absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <button onclick="openGlobalFeature('hey')" class="relative px-3 py-1.5 text-sm font-medium rounded-full hover:bg-gray-100">
+                Hey! <span id="hey-badge" class="hidden absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
             <button onclick="openGlobalFeature('mystuff')" class="px-3 py-1.5 text-sm font-medium rounded-full hover:bg-gray-100">My Stuff</button>
         </nav>
         <div class="flex items-center space-x-3 relative">
@@ -70,17 +74,17 @@
             <div id="projects-list" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </div>
 
-        <!-- GLOBAL: SEARCH -->
+        <!-- SEARCH -->
         <div id="search-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
             <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
                 <h2 class="text-2xl font-bold mb-4">Find & Search</h2>
-                <input type="text" id="search-input" oninput="performSearch(this.value)" class="w-full border p-3 rounded-lg text-sm mb-6" placeholder="Search messages, to-dos...">
+                <input type="text" id="search-input" oninput="performSearch(this.value)" class="w-full border p-3 rounded-lg text-sm mb-6" placeholder="Search messages...">
                 <div id="search-results" class="space-y-3"></div>
             </div>
         </div>
 
-        <!-- GLOBAL: MY STUFF -->
+        <!-- MY STUFF -->
         <div id="mystuff-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
             <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
@@ -89,20 +93,20 @@
             </div>
         </div>
 
-        <!-- GLOBAL: LINEUP -->
+        <!-- LINEUP -->
         <div id="lineup-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
             <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
-                <h2 class="text-2xl font-bold mb-4">Lineup (Schedules & Deadlines)</h2>
+                <h2 class="text-2xl font-bold mb-4">Lineup</h2>
                 <div id="lineup-list" class="space-y-3"></div>
             </div>
         </div>
 
-        <!-- GLOBAL: PINGS -->
+        <!-- PINGS -->
         <div id="pings-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
             <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm flex flex-col h-[600px]">
-                <h2 class="text-2xl font-bold mb-4">Pings (Direct Chat)</h2>
+                <h2 class="text-2xl font-bold mb-4">Pings</h2>
                 <div id="pings-box" class="flex-grow border p-4 overflow-y-auto mb-4 bg-gray-50 space-y-3 rounded-xl"></div>
                 <form id="pings-form" class="flex gap-2">
                     <input type="text" id="pings-input" required class="flex-grow border p-3 text-sm rounded-full px-5" placeholder="Type a ping...">
@@ -111,7 +115,7 @@
             </div>
         </div>
 
-        <!-- GLOBAL: HEY! -->
+        <!-- HEY! -->
         <div id="hey-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
             <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
@@ -122,11 +126,9 @@
 
         <!-- PROJECT DETAILS -->
         <div id="project-details-box" class="max-w-5xl w-full view-box">
-            <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back to projects</button>
+            <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
             <div class="bg-white border border-gray-200 p-10 shadow-sm rounded-2xl">
-                <h2 id="current-project-title" class="text-3xl font-bold text-center mb-6"></h2>
-                <div id="team-members" class="text-xs text-center text-gray-500 mb-8"><i class="fa-solid fa-users mr-1"></i> Team: Active Members Online</div>
-                
+                <h2 id="current-project-title" class="text-3xl font-bold text-center mb-8"></h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div onclick="openFeature('message-board')" class="card-hover border p-6 text-center cursor-pointer hover:shadow-lg bg-white rounded-xl"><i class="fa-regular fa-comments text-3xl text-blue-600 mb-2"></i><h3 class="font-bold">Message Board</h3></div>
                     <div onclick="openFeature('todos')" class="card-hover border p-6 text-center cursor-pointer hover:shadow-lg bg-white rounded-xl"><i class="fa-regular fa-square-check text-3xl text-green-600 mb-2"></i><h3 class="font-bold">To-dos</h3></div>
@@ -262,8 +264,8 @@
 
         window.openGlobalFeature = (feat) => {
             showView(`${feat}-view`);
-            if(feat === 'pings') loadPings();
-            if(feat === 'hey') loadHey();
+            if(feat === 'pings') { loadPings(); document.getElementById('ping-badge').classList.add('hidden'); }
+            if(feat === 'hey') { loadHey(); document.getElementById('hey-badge').classList.add('hidden'); }
             if(feat === 'mystuff') loadMyStuff();
             if(feat === 'lineup') loadLineup();
         };
@@ -278,6 +280,14 @@
                 showView('auth-box');
             });
         };
+
+        // Keyboard Shortcut: Esc to close modals/menus
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('project-modal').classList.add('hidden');
+                document.getElementById('profile-menu').classList.add('hidden');
+            }
+        });
 
         window.deleteItem = async (col, id, feature) => {
             if(confirm("Delete this item?")) {
@@ -296,6 +306,7 @@
                     document.getElementById('user-avatar').classList.replace('bg-gray-300', 'bg-green-600');
                     document.getElementById('menu-email').innerText = userEmail;
                     showView('dashboard-box'); loadProjects(); 
+                    initNotifications();
                 }).catch(e => alert(e.message));
         };
 
@@ -335,7 +346,7 @@
             arr.forEach(item => el.appendChild(renderFunc(item)));
         }
 
-        // Submits
+        // Submits with Optimistic UI / Instant feedback
         document.getElementById('doc-form').onsubmit = async (e) => { 
             e.preventDefault(); 
             const btn = document.getElementById('doc-submit-btn'); btn.innerText = "Uploading...";
@@ -372,7 +383,11 @@
             const li = document.createElement('li'); li.className = "flex items-center justify-between p-3 border rounded-lg";
             const left = document.createElement('div'); left.className = "flex items-center gap-3";
             const chk = document.createElement('input'); chk.type = "checkbox"; chk.checked = t.completed;
-            chk.onchange = () => updateDoc(doc(db, "todos", t.id), { completed: chk.checked }).then(() => openFeature('todos'));
+            chk.onchange = () => {
+                // Optimistic UI update locally first
+                sp.className = chk.checked ? "line-through text-gray-400" : "";
+                updateDoc(doc(db, "todos", t.id), { completed: chk.checked });
+            };
             const sp = document.createElement('span'); sp.innerText = t.title; sp.className = t.completed ? "line-through text-gray-400" : "";
             left.append(chk, sp);
             const del = document.createElement('button'); del.innerHTML = '<i class="fa-solid fa-trash text-gray-400 hover:text-red-500"></i>';
@@ -414,6 +429,19 @@
             const snap = await getDocs(collection(db, "schedule"));
             const list = document.getElementById('lineup-list'); list.innerHTML = '';
             snap.forEach(d => { const s = d.data(); list.innerHTML += `<div class="p-3 border rounded"><b>${s.date}:</b> ${s.title}</div>`; });
+        }
+
+        function initNotifications() {
+            onSnapshot(collection(db, "pings"), (snap) => {
+                if(!document.getElementById('pings-view').classList.contains('active-view')) {
+                    document.getElementById('ping-badge').classList.remove('hidden');
+                }
+            });
+            onSnapshot(collection(db, "messages"), (snap) => {
+                if(!document.getElementById('hey-view').classList.contains('active-view')) {
+                    document.getElementById('hey-badge').classList.remove('hidden');
+                }
+            });
         }
 
         window.performSearch = async (val) => {
