@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basecamp Ultimate Suite</title>
+    <title>Basecamp Ultimate Pro Max</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,7 +21,7 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased">
 
-    <!-- NAVBAR WITH 40+ TOTAL FEATURES -->
+    <!-- NAVBAR -->
     <header class="bg-white border-b border-gray-300 px-4 py-2 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center space-x-6">
             <div class="flex items-center space-x-2 cursor-pointer" onclick="showView('dashboard-box')">
@@ -32,7 +32,6 @@
                 <button onclick="showView('dashboard-box')" class="px-3 py-1.5 text-sm font-semibold rounded-full hover:bg-gray-100">Home</button>
                 <button onclick="openGlobalFeature('lineup')" class="px-3 py-1.5 text-sm font-medium rounded-full hover:bg-gray-100">Lineup</button>
                 <button onclick="openGlobalFeature('reports')" class="px-3 py-1.5 text-sm font-medium rounded-full hover:bg-gray-100">Reports</button>
-                <button onclick="openGlobalFeature('vault')" class="px-3 py-1.5 text-sm font-medium rounded-full hover:bg-gray-100">Vault</button>
             </nav>
         </div>
         <nav class="hidden md:flex space-x-1 items-center">
@@ -47,8 +46,6 @@
             <div id="user-avatar" onclick="toggleProfileMenu()" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer shadow-sm">?</div>
             <div id="profile-menu" class="hidden absolute right-0 top-10 w-48 bg-white border border-gray-200 rounded-xl shadow-lg py-2 z-50">
                 <div class="px-4 py-2 border-b border-gray-100"><p id="menu-email" class="text-xs text-gray-500 font-medium truncate"></p></div>
-                <button onclick="openGlobalFeature('settings')" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"><i class="fa-solid fa-gear mr-2"></i> Settings</button>
-                <button onclick="exportData()" class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"><i class="fa-solid fa-download mr-2"></i> Export Data</button>
                 <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"><i class="fa-solid fa-right-from-bracket mr-2"></i> Log out</button>
             </div>
         </div>
@@ -75,67 +72,44 @@
             <div id="projects-list" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
         </div>
 
-        <!-- GLOBAL: SEARCH -->
+        <!-- GLOBAL VIEWS -->
         <div id="search-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
-                <h2 class="text-2xl font-bold mb-4">Enterprise Search</h2>
-                <input type="text" id="search-input" oninput="performSearch(this.value)" class="w-full border p-3 rounded-lg text-sm mb-6" placeholder="Search across everything...">
+            <div class="bg-white border p-8 rounded-2xl shadow-sm">
+                <h2 class="text-2xl font-bold mb-4">Search</h2>
+                <input type="text" id="search-input" oninput="performSearch(this.value)" class="w-full border p-3 rounded-lg text-sm mb-6" placeholder="Search messages...">
                 <div id="search-results" class="space-y-3"></div>
             </div>
         </div>
 
-        <!-- GLOBAL: MY STUFF -->
         <div id="mystuff-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
-                <h2 class="text-2xl font-bold mb-4">My Stuff & Assignments</h2>
+            <div class="bg-white border p-8 rounded-2xl shadow-sm">
+                <h2 class="text-2xl font-bold mb-4">My Stuff</h2>
                 <ul id="mystuff-list" class="space-y-2"></ul>
             </div>
         </div>
 
-        <!-- GLOBAL: LINEUP -->
         <div id="lineup-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
-                <h2 class="text-2xl font-bold mb-4">Company Lineup</h2>
+            <div class="bg-white border p-8 rounded-2xl shadow-sm">
+                <h2 class="text-2xl font-bold mb-4">Lineup</h2>
                 <div id="lineup-list" class="space-y-3"></div>
             </div>
         </div>
 
-        <!-- GLOBAL: REPORTS -->
         <div id="reports-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
-                <h2 class="text-2xl font-bold mb-4">Analytics & Reports</h2>
+            <div class="bg-white border p-8 rounded-2xl shadow-sm">
+                <h2 class="text-2xl font-bold mb-4">Reports</h2>
                 <div id="reports-content" class="grid grid-cols-2 gap-4"></div>
             </div>
         </div>
 
-        <!-- GLOBAL: VAULT -->
-        <div id="vault-view" class="max-w-4xl w-full view-box">
-            <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
-                <h2 class="text-2xl font-bold mb-4">Company Vault (All Files)</h2>
-                <div id="vault-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-            </div>
-        </div>
-
-        <!-- GLOBAL: SETTINGS -->
-        <div id="settings-view" class="max-w-4xl w-full view-box">
-            <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
-                <h2 class="text-2xl font-bold mb-4">Account Settings</h2>
-                <p class="text-sm text-gray-600 mb-4">Logged in as: <b id="settings-email"></b></p>
-                <button onclick="alert('Profile updated successfully!')" class="bc-btn text-white px-4 py-2 rounded-lg text-sm">Save Preferences</button>
-            </div>
-        </div>
-
-        <!-- GLOBAL: PINGS -->
         <div id="pings-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm flex flex-col h-[600px]">
-                <h2 class="text-2xl font-bold mb-4">Pings (Direct Chat)</h2>
+            <div class="bg-white border p-8 rounded-2xl shadow-sm flex flex-col h-[600px]">
+                <h2 class="text-2xl font-bold mb-4">Pings</h2>
                 <div id="pings-box" class="flex-grow border p-4 overflow-y-auto mb-4 bg-gray-50 space-y-3 rounded-xl"></div>
                 <form id="pings-form" class="flex gap-2">
                     <input type="text" id="pings-input" required class="flex-grow border p-3 text-sm rounded-full px-5" placeholder="Type a ping...">
@@ -144,23 +118,21 @@
             </div>
         </div>
 
-        <!-- GLOBAL: CAMPFIRE -->
         <div id="campfire-global-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm flex flex-col h-[600px]">
-                <h2 class="text-2xl font-bold mb-4">Company Campfire</h2>
+            <div class="bg-white border p-8 rounded-2xl shadow-sm flex flex-col h-[600px]">
+                <h2 class="text-2xl font-bold mb-4">Campfire</h2>
                 <div id="global-chat-box" class="flex-grow border p-4 overflow-y-auto mb-4 bg-gray-50 space-y-3 rounded-xl"></div>
                 <form id="global-chat-form" class="flex gap-2">
-                    <input type="text" id="global-chat-input" required class="flex-grow border p-3 text-sm rounded-full px-5" placeholder="Broadcast to company...">
+                    <input type="text" id="global-chat-input" required class="flex-grow border p-3 text-sm rounded-full px-5" placeholder="Broadcast...">
                     <button type="submit" class="bc-btn text-white px-6 py-2 text-sm rounded-full">Send</button>
                 </form>
             </div>
         </div>
 
-        <!-- GLOBAL: HEY! -->
         <div id="hey-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-8 rounded-2xl shadow-sm">
+            <div class="bg-white border p-8 rounded-2xl shadow-sm">
                 <h2 class="text-2xl font-bold mb-4">Hey! Notifications</h2>
                 <div id="hey-list" class="space-y-3"></div>
             </div>
@@ -169,7 +141,7 @@
         <!-- PROJECT DETAILS -->
         <div id="project-details-box" class="max-w-5xl w-full view-box">
             <button onclick="showView('dashboard-box')" class="text-sm text-gray-500 hover:text-gray-900 mb-4">&larr; Back</button>
-            <div class="bg-white border border-gray-200 p-10 shadow-sm rounded-2xl">
+            <div class="bg-white border p-10 shadow-sm rounded-2xl">
                 <h2 id="current-project-title" class="text-3xl font-bold text-center mb-8"></h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div onclick="openFeature('message-board')" class="card-hover border p-5 text-center cursor-pointer hover:shadow-lg bg-white rounded-xl"><i class="fa-regular fa-comments text-2xl text-blue-600 mb-2"></i><h3 class="font-bold text-sm">Messages</h3></div>
@@ -184,7 +156,7 @@
             </div>
         </div>
 
-        <!-- MESSAGE BOARD -->
+        <!-- MODULE VIEWS -->
         <div id="message-board-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-gray-500 mb-4">&larr; Back</button>
             <div class="bg-white border p-8 rounded-2xl shadow-sm">
@@ -198,20 +170,19 @@
             </div>
         </div>
 
-        <!-- TO-DOS -->
         <div id="todos-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-gray-500 mb-4">&larr; Back</button>
             <div class="bg-white border p-8 rounded-2xl shadow-sm">
                 <h2 class="text-2xl font-bold mb-4">To-dos</h2>
                 <form id="todo-form" class="mb-6 flex gap-3">
                     <input type="text" id="todo-input" required class="flex-grow border p-3 text-sm rounded-lg" placeholder="Add task...">
+                    <input type="date" id="todo-duedate" class="border p-3 text-sm rounded-lg">
                     <button type="submit" class="bc-btn text-white px-5 py-2 text-sm rounded-full">Add</button>
                 </form>
                 <ul id="todo-list" class="space-y-3"></ul>
             </div>
         </div>
 
-        <!-- DOCS -->
         <div id="docs-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-gray-500 mb-4">&larr; Back</button>
             <div class="bg-white border p-8 rounded-2xl shadow-sm">
@@ -226,7 +197,6 @@
             </div>
         </div>
 
-        <!-- CAMPFIRE -->
         <div id="campfire-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-gray-500 mb-4">&larr; Back</button>
             <div class="bg-white border p-8 rounded-2xl shadow-sm flex flex-col h-[600px]">
@@ -239,7 +209,6 @@
             </div>
         </div>
 
-        <!-- SCHEDULE -->
         <div id="schedule-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-gray-500 mb-4">&larr; Back</button>
             <div class="bg-white border p-8 rounded-2xl shadow-sm">
@@ -253,29 +222,26 @@
             </div>
         </div>
 
-        <!-- CLIENT APPROVALS -->
         <div id="client-approvals-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-gray-500 mb-4">&larr; Back</button>
             <div class="bg-white border p-8 rounded-2xl shadow-sm">
                 <h2 class="text-2xl font-bold mb-4">Client Approvals</h2>
                 <form id="approval-form" class="mb-6 flex gap-3">
-                    <input type="text" id="approval-title" required class="flex-grow border p-3 text-sm rounded-lg" placeholder="Deliverable name for sign-off...">
-                    <button type="submit" class="bc-btn text-white px-5 py-2 text-sm rounded-full">Request Approval</button>
+                    <input type="text" id="approval-title" required class="flex-grow border p-3 text-sm rounded-lg" placeholder="Deliverable name...">
+                    <button type="submit" class="bc-btn text-white px-5 py-2 text-sm rounded-full">Request</button>
                 </form>
                 <div id="approval-list" class="space-y-3"></div>
             </div>
         </div>
 
-        <!-- ACTIVITY LOG -->
         <div id="activity-log-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-gray-500 mb-4">&larr; Back</button>
             <div class="bg-white border p-8 rounded-2xl shadow-sm">
-                <h2 class="text-2xl font-bold mb-4">Project Activity Log</h2>
+                <h2 class="text-2xl font-bold mb-4">Activity Log</h2>
                 <div id="activity-list" class="space-y-3"></div>
             </div>
         </div>
 
-        <!-- TEAM MEMBERS -->
         <div id="team-members-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-gray-500 mb-4">&larr; Back</button>
             <div class="bg-white border p-8 rounded-2xl shadow-sm">
@@ -284,7 +250,7 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Project Modal -->
         <div id="project-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50">
             <div class="bg-white p-8 rounded-2xl shadow-2xl w-[400px]">
                 <h3 class="text-xl font-bold mb-4">New Project</h3>
@@ -349,8 +315,6 @@
             if(feat === 'mystuff') loadMyStuff();
             if(feat === 'lineup') loadLineup();
             if(feat === 'reports') loadReports();
-            if(feat === 'vault') loadVault();
-            if(feat === 'settings') document.getElementById('settings-email').innerText = userEmail;
             if(feat === 'campfire-global') loadGlobalChat();
         };
 
@@ -444,7 +408,7 @@
             await saveData('docs', { title, body, fileUrl, fileType }, 'doc-form'); btn.innerText = "Upload"; openFeature('docs'); 
         };
         document.getElementById('msg-form').onsubmit = (e) => { e.preventDefault(); saveData('messages', { title: document.getElementById('msg-title').value, body: document.getElementById('msg-body').value, author: userEmail }, 'msg-form').then(() => openFeature('message-board')); };
-        document.getElementById('todo-form').onsubmit = (e) => { e.preventDefault(); saveData('todos', { title: document.getElementById('todo-input').value, completed: false }, 'todo-form').then(() => openFeature('todos')); };
+        document.getElementById('todo-form').onsubmit = (e) => { e.preventDefault(); saveData('todos', { title: document.getElementById('todo-input').value, dueDate: document.getElementById('todo-duedate').value, completed: false }, 'todo-form').then(() => openFeature('todos')); };
         document.getElementById('schedule-form').onsubmit = (e) => { e.preventDefault(); saveData('schedule', { title: document.getElementById('event-title').value, date: document.getElementById('event-date').value }, 'schedule-form').then(() => openFeature('schedule')); };
         document.getElementById('approval-form').onsubmit = (e) => { e.preventDefault(); saveData('approvals', { title: document.getElementById('approval-title').value, status: 'Pending' }, 'approval-form').then(() => openFeature('client-approvals')); };
         document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); await addDoc(collection(db, "chats"), { text: document.getElementById('chat-input').value, author: userEmail, projectId: currentProject, createdAt: Date.now() }); document.getElementById('chat-input').value = ''; };
@@ -467,11 +431,11 @@
             return d;
         }
         function renderTodo(t) {
-            const li = document.createElement('li'); li.className = "flex items-center justify-between p-3 border rounded-lg";
+            const li = document.createElement('li'); li.className = "flex items-center justify-between p-3 border rounded-lg bg-white";
             const left = document.createElement('div'); left.className = "flex items-center gap-3";
             const chk = document.createElement('input'); chk.type = "checkbox"; chk.checked = t.completed;
             chk.onchange = () => { sp.className = chk.checked ? "line-through text-gray-400" : ""; updateDoc(doc(db, "todos", t.id), { completed: chk.checked }); };
-            const sp = document.createElement('span'); sp.innerText = t.title; sp.className = t.completed ? "line-through text-gray-400" : "";
+            const sp = document.createElement('span'); sp.innerText = t.title + (t.dueDate ? ` (Due: ${t.dueDate})` : ''); sp.className = t.completed ? "line-through text-gray-400" : "";
             left.append(chk, sp);
             const del = document.createElement('button'); del.innerHTML = '<i class="fa-solid fa-trash text-gray-400 hover:text-red-500"></i>';
             del.onclick = () => deleteItem('todos', t.id, 'todos');
@@ -514,22 +478,13 @@
         async function loadMyStuff() {
             const snap = await getDocs(collection(db, "todos"));
             const list = document.getElementById('mystuff-list'); list.innerHTML = '';
-            snap.forEach(d => { const t = d.data(); list.innerHTML += `<li class="p-2 border rounded text-sm">${t.title} ${t.completed ? '(Done)' : ''}</li>`; });
+            snap.forEach(d => { const t = d.data(); list.innerHTML += `<li class="p-2 border rounded text-sm bg-white">${t.title} ${t.completed ? '(Done)' : ''}</li>`; });
         }
 
         async function loadLineup() {
             const snap = await getDocs(collection(db, "schedule"));
             const list = document.getElementById('lineup-list'); list.innerHTML = '';
-            snap.forEach(d => { const s = d.data(); list.innerHTML += `<div class="p-3 border rounded"><b>${s.date}:</b> ${s.title}</div>`; });
-        }
-
-        async function loadVault() {
-            const snap = await getDocs(collection(db, "docs"));
-            const list = document.getElementById('vault-list'); list.innerHTML = '';
-            snap.forEach(d => {
-                const docData = d.data();
-                list.innerHTML += `<div class="p-3 border rounded bg-white"><b class="text-sm">${docData.title}</b><p class="text-xs text-gray-500">${docData.body || 'No description'}</p></div>`;
-            });
+            snap.forEach(d => { const s = d.data(); list.innerHTML += `<div class="p-3 border rounded bg-white"><b>${s.date}:</b> ${s.title}</div>`; });
         }
 
         async function loadReports() {
@@ -544,15 +499,11 @@
         }
 
         async function loadActivityLog() {
-            const list = document.getElementById('activity-list'); list.innerHTML = '<div class="p-3 border rounded bg-white text-sm">Enterprise activity log active. Secure tracking enabled.</div>';
+            const list = document.getElementById('activity-list'); list.innerHTML = '<div class="p-3 border rounded bg-white text-sm">System events tracking enabled.</div>';
         }
 
         async function loadTeamMembers() {
-            const list = document.getElementById('team-list'); list.innerHTML = `<div class="p-3 border rounded bg-white text-sm"><b>${userEmail}</b> (Owner / Admin) - Active Online</div>`;
-        }
-
-        window.exportData = () => {
-            alert("Export feature: All cloud datasets synchronized.");
+            const list = document.getElementById('team-list'); list.innerHTML = `<div class="p-3 border rounded bg-white text-sm"><b>${userEmail}</b> (Owner / Admin)</div>`;
         }
 
         function initNotifications() {
