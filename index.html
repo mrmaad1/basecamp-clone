@@ -16,10 +16,8 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased">
 
-    <!-- EXACT BASECAMP 4 NAVBAR -->
+    <!-- NAVBAR -->
     <header class="bg-white border-b border-gray-300 px-4 py-2 flex justify-between items-center sticky top-0 z-50">
-        
-        <!-- Left: Logo & Nav -->
         <div class="flex items-center space-x-6">
             <div class="flex items-center space-x-2 cursor-pointer" onclick="showView('dashboard-box')">
                 <div class="w-7 h-7 bg-[#1a365d] rounded-md flex items-center justify-center text-white font-bold text-xs">BC</div>
@@ -30,21 +28,15 @@
                 <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition">Lineup</button>
             </nav>
         </div>
-
-        <!-- Middle: Pings, Hey, Activity, My Stuff -->
         <nav class="hidden md:flex space-x-1 items-center">
             <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition">Pings</button>
             <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition">Hey!</button>
             <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition">Activity</button>
             <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition">My Stuff</button>
         </nav>
-
-        <!-- Right: Find & Profile Avatar -->
         <div class="flex items-center space-x-3">
             <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition">Find</button>
-            <div id="user-avatar" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer" title="Not logged in">
-                ?
-            </div>
+            <div id="user-avatar" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer" title="Not logged in">?</div>
         </div>
     </header>
 
@@ -76,7 +68,6 @@
             <button onclick="showView('dashboard-box')" class="text-sm text-blue-600 hover:underline mb-4">&larr; Back</button>
             <div class="bg-white border border-gray-300 p-8 shadow-sm">
                 <h2 id="current-project-title" class="text-2xl font-bold text-center border-b pb-4 mb-6"></h2>
-                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div onclick="openFeature('message-board')" class="border p-4 text-center cursor-pointer hover:shadow-md bg-gray-50 rounded-lg"><h3 class="font-bold text-gray-800">Message Board</h3></div>
                     <div onclick="openFeature('todos')" class="border p-4 text-center cursor-pointer hover:shadow-md bg-gray-50 rounded-lg"><h3 class="font-bold text-gray-800">To-dos</h3></div>
@@ -112,14 +103,15 @@
             </div>
         </div>
 
-        <!-- DOCS & FILES -->
+        <!-- DOCS & FILES (WITH UPLOAD) -->
         <div id="docs-view" class="max-w-4xl w-full view-box">
             <button onclick="showView('project-details-box')" class="text-sm text-blue-600 mb-4">&larr; Back</button>
             <div class="bg-white border p-6"><h2 class="text-xl font-bold mb-4">Docs & Files</h2>
                 <form id="doc-form" class="mb-6 space-y-2">
                     <input type="text" id="doc-title" required class="w-full border p-2 text-sm rounded-sm" placeholder="Doc Title">
-                    <textarea id="doc-body" required class="w-full border p-2 text-sm h-32 rounded-sm" placeholder="Write your document..."></textarea>
-                    <button type="submit" class="bc-btn text-white px-4 py-2 text-sm rounded-sm">Save Doc</button>
+                    <textarea id="doc-body" class="w-full border p-2 text-sm h-20 rounded-sm" placeholder="Write description (optional)..."></textarea>
+                    <input type="file" id="doc-file" class="w-full border p-2 text-sm rounded-sm cursor-pointer">
+                    <button type="submit" id="doc-submit-btn" class="bc-btn text-white px-4 py-2 text-sm rounded-sm">Save & Upload</button>
                 </form>
                 <div id="docs-list" class="grid grid-cols-2 gap-4"></div>
             </div>
@@ -168,6 +160,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZixKsX7KqsfYZMm31rnPwLy7ha25pzo8",
@@ -181,6 +174,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         let currentProject = null, userEmail = null;
         let unsubscribeChat = null;
@@ -205,17 +199,13 @@
             signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
                 .then(u => { 
                     userEmail = u.user.email; 
-                    
-                    // Set Profile Avatar Color and Initial
                     const avatar = document.getElementById('user-avatar');
                     avatar.innerText = userEmail.charAt(0).toUpperCase();
                     avatar.classList.replace('bg-gray-300', 'bg-green-600');
                     avatar.title = userEmail;
-
                     showView('dashboard-box'); 
                     loadProjects(); 
-                })
-                .catch(e => alert(e.message));
+                }).catch(e => alert(e.message));
         };
 
         document.getElementById('save-project').onclick = async () => {
@@ -248,25 +238,59 @@
             const q = query(collection(db, col), where("projectId", "==", currentProject));
             const snap = await getDocs(q);
             const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
-            arr.sort((a, b) => a.createdAt - b.createdAt);
-            
+            arr.sort((a, b) => b.createdAt - a.createdAt); // Newest first
             const el = document.getElementById(elId); el.innerHTML = '';
             arr.forEach(item => el.appendChild(renderFunc(item)));
         }
 
-        document.getElementById('msg-form').onsubmit = (e) => { e.preventDefault(); saveData('messages', { title: document.getElementById('msg-title').value, body: document.getElementById('msg-body').value, author: userEmail }, 'msg-form').then(() => openFeature('message-board')); };
-        document.getElementById('todo-form').onsubmit = (e) => { e.preventDefault(); saveData('todos', { title: document.getElementById('todo-input').value, completed: false }, 'todo-form').then(() => openFeature('todos')); };
-        document.getElementById('doc-form').onsubmit = (e) => { e.preventDefault(); saveData('docs', { title: document.getElementById('doc-title').value, body: document.getElementById('doc-body').value }, 'doc-form').then(() => openFeature('docs')); };
-        document.getElementById('schedule-form').onsubmit = (e) => { e.preventDefault(); saveData('schedule', { title: document.getElementById('event-title').value, date: document.getElementById('event-date').value }, 'schedule-form').then(() => openFeature('schedule')); };
-        
-        document.getElementById('chat-form').onsubmit = async (e) => {
-            e.preventDefault();
-            await addDoc(collection(db, "chats"), { text: document.getElementById('chat-input').value, author: userEmail, projectId: currentProject, createdAt: Date.now() });
-            document.getElementById('chat-form').reset();
+        // File Upload Logic
+        document.getElementById('doc-form').onsubmit = async (e) => { 
+            e.preventDefault(); 
+            const btn = document.getElementById('doc-submit-btn');
+            btn.innerText = "Uploading...";
+            
+            const title = document.getElementById('doc-title').value;
+            const body = document.getElementById('doc-body').value;
+            const fileInput = document.getElementById('doc-file');
+            const file = fileInput.files[0];
+            
+            let fileUrl = "";
+            let fileType = "";
+            
+            if (file) {
+                const storageRef = ref(storage, 'docs/' + Date.now() + '_' + file.name);
+                await uploadBytes(storageRef, file);
+                fileUrl = await getDownloadURL(storageRef);
+                fileType = file.type;
+            }
+            
+            await saveData('docs', { title, body, fileUrl, fileType }, 'doc-form');
+            btn.innerText = "Save & Upload";
+            openFeature('docs'); 
         };
 
+        document.getElementById('msg-form').onsubmit = (e) => { e.preventDefault(); saveData('messages', { title: document.getElementById('msg-title').value, body: document.getElementById('msg-body').value, author: userEmail }, 'msg-form').then(() => openFeature('message-board')); };
+        document.getElementById('todo-form').onsubmit = (e) => { e.preventDefault(); saveData('todos', { title: document.getElementById('todo-input').value, completed: false }, 'todo-form').then(() => openFeature('todos')); };
+        document.getElementById('schedule-form').onsubmit = (e) => { e.preventDefault(); saveData('schedule', { title: document.getElementById('event-title').value, date: document.getElementById('event-date').value }, 'schedule-form').then(() => openFeature('schedule')); };
+        document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); await addDoc(collection(db, "chats"), { text: document.getElementById('chat-input').value, author: userEmail, projectId: currentProject, createdAt: Date.now() }); document.getElementById('chat-form').reset(); };
+
         function renderMsg(m) { const d=document.createElement('div'); d.className="border p-4 bg-gray-50 rounded-sm"; d.innerHTML=`<b>${m.title}</b><br><small class="text-gray-500">${m.author}</small><p class="mt-2 text-sm">${m.body}</p>`; return d; }
-        function renderDoc(m) { const d=document.createElement('div'); d.className="border p-4 bg-gray-50 rounded-sm"; d.innerHTML=`<b>${m.title}</b><p class="mt-2 text-sm truncate">${m.body}</p>`; return d; }
+        
+        function renderDoc(m) { 
+            const d=document.createElement('div'); 
+            d.className="border p-4 bg-gray-50 rounded-sm"; 
+            let mediaHtml = "";
+            if (m.fileUrl) {
+                if (m.fileType.startsWith('image/')) {
+                    mediaHtml = `<img src="${m.fileUrl}" class="mt-2 max-h-32 object-cover rounded border">`;
+                } else {
+                    mediaHtml = `<a href="${m.fileUrl}" target="_blank" class="text-blue-600 underline text-sm mt-2 block">Download File</a>`;
+                }
+            }
+            d.innerHTML=`<b>${m.title}</b><p class="mt-2 text-sm truncate">${m.body}</p>${mediaHtml}`; 
+            return d; 
+        }
+
         function renderEvent(m) { const d=document.createElement('li'); d.className="border-b p-2"; d.innerHTML=`<b>${m.date}</b> - ${m.title}`; return d; }
         function renderTodo(t) {
             const li = document.createElement('li'); li.className = "flex gap-2 p-2 border-b";
