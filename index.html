@@ -37,9 +37,15 @@
             <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition">Activity</button>
             <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition">My Stuff</button>
         </nav>
-        <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-3 relative">
             <button class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition"><i class="fa-solid fa-magnifying-glass"></i> Find</button>
-            <div id="user-avatar" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer shadow-sm" title="Not logged in">?</div>
+            
+            <!-- Avatar & Profile Menu -->
+            <div id="user-avatar" onclick="toggleProfileMenu()" class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm cursor-pointer shadow-sm" title="Profile">?</div>
+            <div id="profile-menu" class="hidden absolute right-0 top-10 w-48 bg-white border border-gray-200 rounded-xl shadow-lg py-2 z-50">
+                <div class="px-4 py-2 border-b border-gray-100"><p id="menu-email" class="text-xs text-gray-500 font-medium truncate"></p></div>
+                <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition">Log out</button>
+            </div>
         </div>
     </header>
 
@@ -72,31 +78,26 @@
                 <h2 id="current-project-title" class="text-3xl font-bold text-center mb-10 text-gray-900"></h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Message Board Card -->
                     <div onclick="openFeature('message-board')" class="card-hover border border-gray-200 p-6 text-center cursor-pointer hover:shadow-lg bg-white rounded-xl transition-all shadow-sm">
                         <div class="text-4xl text-[#1a365d] mb-4 card-icon"><i class="fa-regular fa-comments"></i></div>
                         <h3 class="font-bold text-gray-900 text-lg">Message Board</h3>
                         <p class="text-xs text-gray-500 mt-2">Post announcements, pitch ideas, ask questions.</p>
                     </div>
-                    <!-- To-dos Card -->
                     <div onclick="openFeature('todos')" class="card-hover border border-gray-200 p-6 text-center cursor-pointer hover:shadow-lg bg-white rounded-xl transition-all shadow-sm">
                         <div class="text-4xl text-[#28a745] mb-4 card-icon"><i class="fa-regular fa-square-check"></i></div>
                         <h3 class="font-bold text-gray-900 text-lg">To-dos</h3>
                         <p class="text-xs text-gray-500 mt-2">Make lists of work that needs to get done.</p>
                     </div>
-                    <!-- Docs & Files Card -->
                     <div onclick="openFeature('docs')" class="card-hover border border-gray-200 p-6 text-center cursor-pointer hover:shadow-lg bg-white rounded-xl transition-all shadow-sm">
                         <div class="text-4xl text-[#ffc107] mb-4 card-icon"><i class="fa-regular fa-folder-open"></i></div>
                         <h3 class="font-bold text-gray-900 text-lg">Docs & Files</h3>
                         <p class="text-xs text-gray-500 mt-2">Share docs, files, images, and spreadsheets.</p>
                     </div>
-                    <!-- Campfire Card -->
                     <div onclick="openFeature('campfire')" class="card-hover border border-gray-200 p-6 text-center cursor-pointer hover:shadow-lg bg-white rounded-xl transition-all shadow-sm">
                         <div class="text-4xl text-[#dc3545] mb-4 card-icon"><i class="fa-solid fa-fire"></i></div>
                         <h3 class="font-bold text-gray-900 text-lg">Campfire</h3>
-                        <p class="text-xs text-gray-500 mt-2">Chat casually with the group, ask random questions.</p>
+                        <p class="text-xs text-gray-500 mt-2">Chat casually with the group.</p>
                     </div>
-                    <!-- Schedule Card -->
                     <div onclick="openFeature('schedule')" class="card-hover border border-gray-200 p-6 text-center cursor-pointer hover:shadow-lg bg-white rounded-xl transition-all shadow-sm">
                         <div class="text-4xl text-[#17a2b8] mb-4 card-icon"><i class="fa-regular fa-calendar"></i></div>
                         <h3 class="font-bold text-gray-900 text-lg">Schedule</h3>
@@ -115,8 +116,8 @@
                     <h2 class="text-2xl font-bold text-gray-900">Message Board</h2>
                 </div>
                 <form id="msg-form" class="mb-8 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <input type="text" id="msg-title" required class="w-full border border-gray-300 p-3 text-sm rounded-lg mb-3 focus:ring-2 focus:ring-green-500 outline-none" placeholder="Type a title...">
-                    <textarea id="msg-body" required class="w-full border border-gray-300 p-3 text-sm rounded-lg mb-3 h-24 focus:ring-2 focus:ring-green-500 outline-none" placeholder="Write your message here..."></textarea>
+                    <input type="text" id="msg-title" required class="w-full border border-gray-300 p-3 text-sm rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Type a title...">
+                    <textarea id="msg-body" required class="w-full border border-gray-300 p-3 text-sm rounded-lg mb-3 h-24 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Write your message here..."></textarea>
                     <button type="submit" class="bc-btn text-white px-5 py-2 text-sm rounded-full font-medium shadow-sm">Post this message</button>
                 </form>
                 <div id="msg-list" class="space-y-4"></div>
@@ -132,7 +133,7 @@
                     <h2 class="text-2xl font-bold text-gray-900">To-dos</h2>
                 </div>
                 <form id="todo-form" class="mb-6 flex gap-3">
-                    <input type="text" id="todo-input" required class="flex-grow border border-gray-300 p-3 text-sm rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="Add a new to-do...">
+                    <input type="text" id="todo-input" required class="flex-grow border border-gray-300 p-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Add a new to-do...">
                     <button type="submit" class="bc-btn text-white px-5 py-2 text-sm rounded-full font-medium shadow-sm">Add</button>
                 </form>
                 <ul id="todo-list" class="space-y-3"></ul>
@@ -148,8 +149,8 @@
                     <h2 class="text-2xl font-bold text-gray-900">Docs & Files</h2>
                 </div>
                 <form id="doc-form" class="mb-8 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <input type="text" id="doc-title" required class="w-full border border-gray-300 p-3 text-sm rounded-lg mb-3 focus:ring-2 focus:ring-green-500 outline-none" placeholder="Document/File Name">
-                    <textarea id="doc-body" class="w-full border border-gray-300 p-3 text-sm rounded-lg mb-3 h-20 focus:ring-2 focus:ring-green-500 outline-none" placeholder="Write description (optional)..."></textarea>
+                    <input type="text" id="doc-title" required class="w-full border border-gray-300 p-3 text-sm rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Document/File Name">
+                    <textarea id="doc-body" class="w-full border border-gray-300 p-3 text-sm rounded-lg mb-3 h-20 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Write description (optional)..."></textarea>
                     <input type="file" id="doc-file" class="w-full border border-gray-300 p-2 text-sm rounded-lg mb-3 cursor-pointer bg-white">
                     <button type="submit" id="doc-submit-btn" class="bc-btn text-white px-5 py-2 text-sm rounded-full font-medium shadow-sm">Save & Upload</button>
                 </form>
@@ -167,7 +168,7 @@
                 </div>
                 <div id="chat-box" class="flex-grow border border-gray-200 p-4 overflow-y-auto mb-4 bg-gray-50 space-y-3 rounded-xl"></div>
                 <form id="chat-form" class="flex gap-2">
-                    <input type="text" id="chat-input" required class="flex-grow border border-gray-300 p-3 text-sm rounded-full focus:ring-2 focus:ring-green-500 outline-none px-5" placeholder="Type your message here...">
+                    <input type="text" id="chat-input" required class="flex-grow border border-gray-300 p-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 px-5" placeholder="Type your message here...">
                     <button type="submit" class="bc-btn text-white px-6 py-2 text-sm rounded-full font-medium shadow-sm"><i class="fa-solid fa-paper-plane"></i></button>
                 </form>
             </div>
@@ -182,8 +183,8 @@
                     <h2 class="text-2xl font-bold text-gray-900">Schedule</h2>
                 </div>
                 <form id="schedule-form" class="mb-6 flex gap-3">
-                    <input type="text" id="event-title" required class="flex-grow border border-gray-300 p-3 text-sm rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="Event Name">
-                    <input type="date" id="event-date" required class="border border-gray-300 p-3 text-sm rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-gray-600">
+                    <input type="text" id="event-title" required class="flex-grow border border-gray-300 p-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Event Name">
+                    <input type="date" id="event-date" required class="border border-gray-300 p-3 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600">
                     <button type="submit" class="bc-btn text-white px-5 py-2 text-sm rounded-full font-medium shadow-sm">Add Event</button>
                 </form>
                 <ul id="schedule-list" class="space-y-3"></ul>
@@ -191,10 +192,10 @@
         </div>
 
         <!-- Modal -->
-        <div id="project-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50 transition-opacity">
+        <div id="project-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50">
             <div class="bg-white p-8 rounded-2xl shadow-2xl w-[400px]">
                 <h3 class="text-xl font-bold mb-4 text-gray-900">Name this project</h3>
-                <input type="text" id="project-name" class="w-full border border-gray-300 p-3 mb-6 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="e.g. Marketing Campaign">
+                <input type="text" id="project-name" class="w-full border border-gray-300 p-3 mb-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g. Marketing Campaign">
                 <div class="flex justify-end gap-3">
                     <button onclick="document.getElementById('project-modal').classList.add('hidden')" class="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full transition">Cancel</button>
                     <button id="save-project" class="bc-btn text-white px-5 py-2 text-sm rounded-full font-medium shadow-sm">Save</button>
@@ -206,8 +207,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-storage.js";
 
         const firebaseConfig = {
@@ -227,10 +228,12 @@
         let currentProject = null, userEmail = null;
         let unsubscribeChat = null;
 
+        // Routing & Menus
         window.showView = (id) => {
             document.querySelectorAll('.view-box').forEach(el => el.classList.remove('active-view'));
             document.getElementById(id).classList.add('active-view');
             if(unsubscribeChat && id !== 'campfire-view') { unsubscribeChat(); unsubscribeChat = null; }
+            document.getElementById('profile-menu').classList.add('hidden'); // auto-hide menu
         };
 
         window.openFeature = (feat) => {
@@ -242,20 +245,39 @@
             if(feat === 'schedule') loadData('schedule', 'schedule-list', renderEvent);
         };
 
+        window.toggleProfileMenu = () => { document.getElementById('profile-menu').classList.toggle('hidden'); };
+
+        window.logout = () => {
+            signOut(auth).then(() => {
+                userEmail = null; currentProject = null;
+                document.getElementById('user-avatar').innerText = '?';
+                document.getElementById('profile-menu').classList.add('hidden');
+                showView('auth-box');
+            });
+        };
+
+        window.deleteItem = async (col, id, feature) => {
+            if(confirm("Are you sure you want to delete this?")) {
+                await deleteDoc(doc(db, col, id));
+                openFeature(feature);
+            }
+        };
+
+        // Auth
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
                 .then(u => { 
                     userEmail = u.user.email; 
-                    const avatar = document.getElementById('user-avatar');
-                    avatar.innerText = userEmail.charAt(0).toUpperCase();
-                    avatar.classList.replace('bg-gray-300', 'bg-green-600');
-                    avatar.title = userEmail;
+                    document.getElementById('user-avatar').innerText = userEmail.charAt(0).toUpperCase();
+                    document.getElementById('user-avatar').classList.replace('bg-gray-300', 'bg-green-600');
+                    document.getElementById('menu-email').innerText = userEmail;
                     showView('dashboard-box'); 
                     loadProjects(); 
                 }).catch(e => alert(e.message));
         };
 
+        // Projects
         document.getElementById('save-project').onclick = async () => {
             const val = document.getElementById('project-name').value;
             if(!val) return;
@@ -292,7 +314,7 @@
             arr.forEach(item => el.appendChild(renderFunc(item)));
         }
 
-        // File Upload Logic
+        // Submits
         document.getElementById('doc-form').onsubmit = async (e) => { 
             e.preventDefault(); 
             const btn = document.getElementById('doc-submit-btn');
@@ -303,9 +325,7 @@
             const fileInput = document.getElementById('doc-file');
             const file = fileInput.files[0];
             
-            let fileUrl = "";
-            let fileType = "";
-            
+            let fileUrl = ""; let fileType = "";
             if (file) {
                 const storageRef = ref(storage, 'docs/' + Date.now() + '_' + file.name);
                 await uploadBytes(storageRef, file);
@@ -323,31 +343,34 @@
         document.getElementById('schedule-form').onsubmit = (e) => { e.preventDefault(); saveData('schedule', { title: document.getElementById('event-title').value, date: document.getElementById('event-date').value }, 'schedule-form').then(() => openFeature('schedule')); };
         document.getElementById('chat-form').onsubmit = async (e) => { e.preventDefault(); await addDoc(collection(db, "chats"), { text: document.getElementById('chat-input').value, author: userEmail, projectId: currentProject, createdAt: Date.now() }); document.getElementById('chat-form').reset(); };
 
-        function renderMsg(m) { const d=document.createElement('div'); d.className="border border-gray-200 p-5 bg-white rounded-xl shadow-sm"; d.innerHTML=`<h4 class="font-bold text-lg text-gray-900">${m.title}</h4><small class="text-gray-500"><i class="fa-regular fa-user mr-1"></i>${m.author}</small><p class="mt-3 text-sm text-gray-700 whitespace-pre-wrap">${m.body}</p>`; return d; }
+        // Renders with Delete Button
+        function renderMsg(m) { const d=document.createElement('div'); d.className="border border-gray-200 p-5 bg-white rounded-xl shadow-sm relative"; d.innerHTML=`<button onclick="deleteItem('messages', '${m.id}', 'message-board')" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button><h4 class="font-bold text-lg text-gray-900 pr-6">${m.title}</h4><small class="text-gray-500"><i class="fa-regular fa-user mr-1"></i>${m.author}</small><p class="mt-3 text-sm text-gray-700 whitespace-pre-wrap">${m.body}</p>`; return d; }
         
         function renderDoc(m) { 
-            const d=document.createElement('div'); 
-            d.className="border border-gray-200 p-5 bg-white rounded-xl shadow-sm flex flex-col"; 
+            const d=document.createElement('div'); d.className="border border-gray-200 p-5 bg-white rounded-xl shadow-sm flex flex-col relative"; 
             let mediaHtml = "";
             if (m.fileUrl) {
-                if (m.fileType && m.fileType.startsWith('image/')) {
-                    mediaHtml = `<img src="${m.fileUrl}" class="mt-3 w-full h-40 object-cover rounded-lg border border-gray-100">`;
-                } else {
-                    mediaHtml = `<a href="${m.fileUrl}" target="_blank" class="mt-3 text-sm text-blue-600 hover:underline bg-blue-50 py-2 px-3 rounded-lg inline-block text-center border border-blue-100"><i class="fa-solid fa-download mr-1"></i> Download File</a>`;
-                }
+                if (m.fileType && m.fileType.startsWith('image/')) mediaHtml = `<img src="${m.fileUrl}" class="mt-3 w-full h-40 object-cover rounded-lg border border-gray-100">`;
+                else mediaHtml = `<a href="${m.fileUrl}" target="_blank" class="mt-3 text-sm text-blue-600 hover:underline bg-blue-50 py-2 px-3 rounded-lg inline-block text-center border border-blue-100"><i class="fa-solid fa-download mr-1"></i> Download File</a>`;
             }
-            d.innerHTML=`<h4 class="font-bold text-lg text-gray-900"><i class="fa-regular fa-file-lines mr-2 text-gray-400"></i>${m.title}</h4><p class="mt-2 text-sm text-gray-600 flex-grow">${m.body}</p>${mediaHtml}`; 
+            d.innerHTML=`<button onclick="deleteItem('docs', '${m.id}', 'docs')" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fa-solid fa-trash"></i></button><h4 class="font-bold text-lg text-gray-900 pr-6"><i class="fa-regular fa-file-lines mr-2 text-gray-400"></i>${m.title}</h4><p class="mt-2 text-sm text-gray-600 flex-grow">${m.body}</p>${mediaHtml}`; 
             return d; 
         }
 
-        function renderEvent(m) { const d=document.createElement('li'); d.className="flex items-center p-3 border border-gray-100 bg-gray-50 rounded-lg"; d.innerHTML=`<div class="bg-white border border-gray-200 rounded px-3 py-1 text-sm font-bold text-[#17a2b8] mr-4 shadow-sm">${m.date}</div> <span class="font-medium text-gray-800">${m.title}</span>`; return d; }
+        function renderEvent(m) { const d=document.createElement('li'); d.className="flex items-center p-3 border border-gray-100 bg-gray-50 rounded-lg justify-between"; d.innerHTML=`<div class="flex items-center"><div class="bg-white border border-gray-200 rounded px-3 py-1 text-sm font-bold text-[#17a2b8] mr-4 shadow-sm">${m.date}</div> <span class="font-medium text-gray-800">${m.title}</span></div> <button onclick="deleteItem('schedule', '${m.id}', 'schedule')" class="text-gray-400 hover:text-red-500 ml-2"><i class="fa-solid fa-trash"></i></button>`; return d; }
         
         function renderTodo(t) {
-            const li = document.createElement('li'); li.className = "flex items-center gap-3 p-3 hover:bg-gray-50 border border-gray-100 rounded-lg transition";
+            const li = document.createElement('li'); li.className = "flex items-center justify-between p-3 hover:bg-gray-50 border border-gray-100 rounded-lg transition";
+            const leftDiv = document.createElement('div'); leftDiv.className = "flex items-center gap-3";
             const chk = document.createElement('input'); chk.type = "checkbox"; chk.checked = t.completed; chk.className = "w-5 h-5 text-green-600 rounded cursor-pointer accent-green-600";
             chk.onchange = () => updateDoc(doc(db, "todos", t.id), { completed: chk.checked }).then(() => openFeature('todos'));
             const sp = document.createElement('span'); sp.innerText = t.title; sp.className = `text-sm font-medium ${t.completed ? 'line-through text-gray-400' : 'text-gray-800'}`;
-            li.append(chk, sp); return li;
+            leftDiv.append(chk, sp);
+            
+            const delBtn = document.createElement('button'); delBtn.className = "text-gray-400 hover:text-red-500"; delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            delBtn.onclick = () => deleteItem('todos', t.id, 'todos');
+            
+            li.append(leftDiv, delBtn); return li;
         }
 
         function loadChat() {
@@ -358,12 +381,7 @@
                 const box = document.getElementById('chat-box'); box.innerHTML = '';
                 arr.forEach(c => { 
                     const isMe = c.author === userEmail;
-                    box.innerHTML += `<div class="mb-2 ${isMe ? 'text-right' : 'text-left'}">
-                        <div class="inline-block p-3 rounded-2xl max-w-[80%] ${isMe ? 'bg-[#e3f2fd] text-gray-900 rounded-br-sm' : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'}">
-                            ${!isMe ? `<small class="block text-xs font-bold text-[#1a365d] mb-1">${c.author}</small>` : ''}
-                            <span class="text-sm">${c.text}</span>
-                        </div>
-                    </div>`; 
+                    box.innerHTML += `<div class="mb-2 ${isMe ? 'text-right' : 'text-left'}"><div class="inline-block p-3 rounded-2xl max-w-[80%] ${isMe ? 'bg-[#e3f2fd] text-gray-900 rounded-br-sm' : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'}">${!isMe ? `<small class="block text-xs font-bold text-[#1a365d] mb-1">${c.author}</small>` : ''}<span class="text-sm">${c.text}</span></div></div>`; 
                 });
                 box.scrollTop = box.scrollHeight;
             });
