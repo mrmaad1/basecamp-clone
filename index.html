@@ -10,6 +10,8 @@
         body { font-family: 'Inter', sans-serif; background-color: #f4f4f0; color: #222222; }
         .bc-btn { background-color: #28a745; transition: background 0.1s ease; }
         .bc-btn:hover { background-color: #218838; }
+        .view-box { display: none; }
+        .active-view { display: block; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased">
@@ -22,131 +24,126 @@
         <div id="user-status" class="text-xs text-gray-500 font-medium">Not signed in</div>
     </header>
 
-    <main class="flex-grow flex items-center justify-center px-4 py-12">
+    <main class="flex-grow flex justify-center px-4 py-8">
         
-        <!-- Login Card -->
-        <div id="auth-box" class="max-w-sm w-full bg-white border border-gray-300 p-8 shadow-sm">
-            <h1 class="text-xl font-bold text-gray-900 mb-1">Log in to your account</h1>
-            
-            <form id="login-form" class="space-y-4 mt-6" onsubmit="event.preventDefault();">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Email address</label>
-                    <input type="email" id="email" required class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Password</label>
-                    <input type="password" id="password" required class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm">
-                </div>
-                <button type="submit" id="login-btn" class="w-full bc-btn text-white font-semibold py-2 px-4 rounded-sm text-sm">Log in</button>
+        <!-- LOGIN -->
+        <div id="auth-box" class="max-w-sm w-full bg-white border border-gray-300 p-8 shadow-sm active-view">
+            <h1 class="text-xl font-bold text-gray-900 mb-4">Log in</h1>
+            <form id="login-form" class="space-y-4" onsubmit="event.preventDefault();">
+                <input type="email" id="email" required placeholder="Email" class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm">
+                <input type="password" id="password" required placeholder="Password" class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm">
+                <button type="submit" id="login-btn" class="w-full bc-btn text-white font-semibold py-2 rounded-sm text-sm">Log in</button>
             </form>
         </div>
 
-        <!-- Project Dashboard -->
-        <div id="dashboard-box" class="hidden max-w-4xl w-full">
-            <div class="bg-white border border-gray-300 p-8 shadow-sm mb-6">
+        <!-- DASHBOARD -->
+        <div id="dashboard-box" class="max-w-4xl w-full view-box">
+            <div class="bg-white border border-gray-300 p-8 shadow-sm">
                 <div class="border-b border-gray-200 pb-4 mb-6 flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-900">Your Projects</h2>
-                    <button id="new-project-btn" class="bc-btn text-white text-xs font-semibold px-3 py-1.5 rounded-sm">Make a new project</button>
+                    <h2 class="text-xl font-bold text-gray-900">Projects</h2>
+                    <button onclick="document.getElementById('project-modal').classList.remove('hidden')" class="bc-btn text-white text-xs px-3 py-1.5 rounded-sm">New Project</button>
                 </div>
+                <div id="projects-list" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- PROJECT DETAILS -->
+        <div id="project-details-box" class="max-w-4xl w-full view-box">
+            <button onclick="showView('dashboard-box')" class="text-sm text-blue-600 hover:underline mb-4">&larr; Back</button>
+            <div class="bg-white border border-gray-300 p-8 shadow-sm">
+                <h2 id="current-project-title" class="text-2xl font-bold text-center border-b pb-4 mb-6"></h2>
                 
-                <div id="projects-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div id="empty-state" class="col-span-full text-center py-12 border-2 border-dashed border-gray-200 text-gray-500 text-sm">
-                        <p class="mb-2">You don't have any active projects yet.</p>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div onclick="openFeature('message-board')" class="border p-4 text-center cursor-pointer hover:shadow-md bg-gray-50"><h3 class="font-bold">Message Board</h3></div>
+                    <div onclick="openFeature('todos')" class="border p-4 text-center cursor-pointer hover:shadow-md bg-gray-50"><h3 class="font-bold">To-dos</h3></div>
+                    <div onclick="openFeature('docs')" class="border p-4 text-center cursor-pointer hover:shadow-md bg-gray-50"><h3 class="font-bold">Docs & Files</h3></div>
+                    <div onclick="openFeature('campfire')" class="border p-4 text-center cursor-pointer hover:shadow-md bg-gray-50"><h3 class="font-bold">Campfire</h3></div>
+                    <div onclick="openFeature('schedule')" class="border p-4 text-center cursor-pointer hover:shadow-md bg-gray-50"><h3 class="font-bold">Schedule</h3></div>
                 </div>
             </div>
         </div>
 
-        <!-- INSIDE A PROJECT (Project Details) -->
-        <div id="project-details-box" class="hidden max-w-4xl w-full">
-            <div class="mb-4">
-                <button id="back-to-projects" class="text-sm text-blue-600 hover:underline">&larr; Back to all projects</button>
-            </div>
-            <div class="bg-white border border-gray-300 p-8 shadow-sm">
-                <h2 id="current-project-title" class="text-2xl font-bold text-gray-900 mb-8 text-center border-b border-gray-200 pb-4">Project Name</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- MESSAGE BOARD CARD -->
-                    <div id="message-board-card" class="border border-gray-300 p-6 text-center hover:shadow-md cursor-pointer rounded-sm bg-[#f9f9f9]">
-                        <h3 class="font-bold text-gray-900 mb-2">Message Board</h3>
-                        <p class="text-xs text-gray-500">Post announcements, pitch ideas, ask questions.</p>
-                    </div>
-                    <!-- TO-DOS CARD -->
-                    <div id="todos-card" class="border border-gray-300 p-6 text-center hover:shadow-md cursor-pointer rounded-sm bg-[#f9f9f9]">
-                        <h3 class="font-bold text-gray-900 mb-2">To-dos</h3>
-                        <p class="text-xs text-gray-500">Make lists of work that needs to get done.</p>
-                    </div>
-                    <!-- DOCS CARD (Next) -->
-                    <div class="border border-gray-300 p-6 text-center hover:shadow-md cursor-pointer rounded-sm bg-[#f9f9f9]">
-                        <h3 class="font-bold text-gray-900 mb-2">Docs & Files</h3>
-                        <p class="text-xs text-gray-500">Share docs, files, images, and spreadsheets.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MESSAGE BOARD VIEW -->
-        <div id="message-board-view-box" class="hidden max-w-4xl w-full">
-            <div class="mb-4">
-                <button id="back-to-project-from-mb" class="text-sm text-blue-600 hover:underline">&larr; Back to Project</button>
-            </div>
-            <div class="bg-white border border-gray-300 p-8 shadow-sm">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-4">Message Board</h2>
-                
-                <div class="mb-8 bg-[#f4f4f0] p-4 border border-gray-300 rounded-sm">
-                    <h3 class="font-bold text-gray-900 mb-3 text-sm">Post a new message</h3>
-                    <form id="new-message-form" class="space-y-3" onsubmit="event.preventDefault();">
-                        <input type="text" id="msg-title" required class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm" placeholder="Message title...">
-                        <textarea id="msg-body" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm" placeholder="Write your message here..."></textarea>
-                        <button type="submit" id="post-msg-btn" class="bc-btn text-white px-4 py-2 text-sm rounded-sm font-semibold">Post Message</button>
-                    </form>
-                </div>
-
-                <div id="messages-list" class="space-y-4">
-                    <!-- Messages yahan aayengi -->
-                </div>
-            </div>
-        </div>
-
-        <!-- TO-DOS VIEW -->
-        <div id="todos-view-box" class="hidden max-w-4xl w-full">
-            <div class="mb-4">
-                <button id="back-to-project-details" class="text-sm text-blue-600 hover:underline">&larr; Back to Project</button>
-            </div>
-            <div class="bg-white border border-gray-300 p-8 shadow-sm">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-4">To-dos</h2>
-                
-                <form id="add-todo-form" class="mb-6 flex gap-2" onsubmit="event.preventDefault();">
-                    <input type="text" id="new-todo-input" required class="flex-grow px-3 py-2 border border-gray-300 rounded-sm text-sm" placeholder="Add a new to-do...">
-                    <button type="submit" id="add-todo-btn" class="bc-btn text-white px-4 py-2 text-sm rounded-sm font-semibold">Add</button>
+        <!-- MESSAGE BOARD -->
+        <div id="message-board-view" class="max-w-4xl w-full view-box">
+            <button onclick="showView('project-details-box')" class="text-sm text-blue-600 mb-4">&larr; Back</button>
+            <div class="bg-white border p-6"><h2 class="text-xl font-bold mb-4">Message Board</h2>
+                <form id="msg-form" class="mb-6 space-y-2">
+                    <input type="text" id="msg-title" required class="w-full border p-2 text-sm" placeholder="Title">
+                    <textarea id="msg-body" required class="w-full border p-2 text-sm" placeholder="Message"></textarea>
+                    <button type="submit" class="bc-btn text-white px-4 py-2 text-sm">Post</button>
                 </form>
-
-                <ul id="todo-list" class="space-y-1"></ul>
+                <div id="msg-list" class="space-y-4"></div>
             </div>
         </div>
 
-        <!-- New Project Modal -->
+        <!-- TO-DOS -->
+        <div id="todos-view" class="max-w-4xl w-full view-box">
+            <button onclick="showView('project-details-box')" class="text-sm text-blue-600 mb-4">&larr; Back</button>
+            <div class="bg-white border p-6"><h2 class="text-xl font-bold mb-4">To-dos</h2>
+                <form id="todo-form" class="mb-4 flex gap-2">
+                    <input type="text" id="todo-input" required class="flex-grow border p-2 text-sm" placeholder="Add to-do...">
+                    <button type="submit" class="bc-btn text-white px-4 py-2 text-sm">Add</button>
+                </form>
+                <ul id="todo-list" class="space-y-2"></ul>
+            </div>
+        </div>
+
+        <!-- DOCS & FILES -->
+        <div id="docs-view" class="max-w-4xl w-full view-box">
+            <button onclick="showView('project-details-box')" class="text-sm text-blue-600 mb-4">&larr; Back</button>
+            <div class="bg-white border p-6"><h2 class="text-xl font-bold mb-4">Docs & Files</h2>
+                <form id="doc-form" class="mb-6 space-y-2">
+                    <input type="text" id="doc-title" required class="w-full border p-2 text-sm" placeholder="Doc Title">
+                    <textarea id="doc-body" required class="w-full border p-2 text-sm h-32" placeholder="Write your document..."></textarea>
+                    <button type="submit" class="bc-btn text-white px-4 py-2 text-sm">Save Doc</button>
+                </form>
+                <div id="docs-list" class="grid grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- CAMPFIRE -->
+        <div id="campfire-view" class="max-w-4xl w-full view-box">
+            <button onclick="showView('project-details-box')" class="text-sm text-blue-600 mb-4">&larr; Back</button>
+            <div class="bg-white border p-6 flex flex-col h-[500px]">
+                <h2 class="text-xl font-bold mb-4">Campfire (Chat)</h2>
+                <div id="chat-box" class="flex-grow border p-4 overflow-y-auto mb-4 bg-gray-50 space-y-2"></div>
+                <form id="chat-form" class="flex gap-2">
+                    <input type="text" id="chat-input" required class="flex-grow border p-2 text-sm" placeholder="Type a message...">
+                    <button type="submit" class="bc-btn text-white px-4 py-2 text-sm">Send</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- SCHEDULE -->
+        <div id="schedule-view" class="max-w-4xl w-full view-box">
+            <button onclick="showView('project-details-box')" class="text-sm text-blue-600 mb-4">&larr; Back</button>
+            <div class="bg-white border p-6"><h2 class="text-xl font-bold mb-4">Schedule</h2>
+                <form id="schedule-form" class="mb-6 flex gap-2">
+                    <input type="text" id="event-title" required class="flex-grow border p-2 text-sm" placeholder="Event Name">
+                    <input type="date" id="event-date" required class="border p-2 text-sm">
+                    <button type="submit" class="bc-btn text-white px-4 py-2 text-sm">Add Event</button>
+                </form>
+                <ul id="schedule-list" class="space-y-2"></ul>
+            </div>
+        </div>
+
+        <!-- Modal -->
         <div id="project-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-6 rounded-sm shadow-lg w-96 border border-gray-300">
-                <h3 class="text-lg font-bold mb-4">Name this project</h3>
-                <input type="text" id="project-name" class="w-full px-3 py-2 border border-gray-300 rounded-sm mb-4 text-sm">
-                <div class="flex justify-end space-x-2">
-                    <button id="cancel-modal" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900">Cancel</button>
-                    <button id="save-project" class="bc-btn text-white px-3 py-1.5 text-sm rounded-sm font-semibold">Save</button>
+            <div class="bg-white p-6 rounded shadow-lg w-96 border">
+                <input type="text" id="project-name" class="w-full border p-2 mb-4" placeholder="Project Name">
+                <div class="flex justify-end gap-2">
+                    <button onclick="document.getElementById('project-modal').classList.add('hidden')" class="text-sm">Cancel</button>
+                    <button id="save-project" class="bc-btn text-white px-4 py-2 text-sm">Save</button>
                 </div>
             </div>
         </div>
 
     </main>
 
-    <footer class="text-center py-4 text-xs text-gray-400 border-t border-gray-200 bg-white">
-        Basecamp &bull; The happier, calmer way to work in groups.
-    </footer>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZixKsX7KqsfYZMm31rnPwLy7ha25pzo8",
@@ -161,183 +158,106 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentProjectId = null;
-        let currentUserEmail = null;
+        let currentProject = null, userEmail = null;
+        let unsubscribeChat = null; // chat listener close krne k lye
 
-        // Login
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+        // View Router
+        window.showView = (id) => {
+            document.querySelectorAll('.view-box').forEach(el => el.classList.remove('active-view'));
+            document.getElementById(id).classList.add('active-view');
+            if(unsubscribeChat && id !== 'campfire-view') { unsubscribeChat(); unsubscribeChat = null; }
+        };
+
+        window.openFeature = (feat) => {
+            showView(`${feat}-view`);
+            if(feat === 'message-board') loadData('messages', 'msg-list', renderMsg);
+            if(feat === 'todos') loadData('todos', 'todo-list', renderTodo);
+            if(feat === 'docs') loadData('docs', 'docs-list', renderDoc);
+            if(feat === 'campfire') loadChat();
+            if(feat === 'schedule') loadData('schedule', 'schedule-list', renderEvent);
+        };
+
+        // Auth
+        document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            document.getElementById('login-btn').innerText = "Logging in...";
-            
-            signInWithEmailAndPassword(auth, email, password)
-                .then((userCred) => {
-                    currentUserEmail = userCred.user.email;
-                    document.getElementById('auth-box').classList.add('hidden');
-                    document.getElementById('dashboard-box').classList.remove('hidden');
-                    document.getElementById('user-status').innerText = currentUserEmail;
-                    loadProjects();
-                })
-                .catch((error) => {
-                    alert("Error: " + error.message);
-                    document.getElementById('login-btn').innerText = "Log in";
-                });
-        });
+            signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
+                .then(u => { userEmail = u.user.email; document.getElementById('user-status').innerText = userEmail; showView('dashboard-box'); loadProjects(); })
+                .catch(e => alert(e.message));
+        };
 
-        // Project Modal
-        const modal = document.getElementById('project-modal');
-        document.getElementById('new-project-btn').addEventListener('click', () => modal.classList.remove('hidden'));
-        document.getElementById('cancel-modal').addEventListener('click', () => { modal.classList.add('hidden'); });
-
-        // Save Project
-        document.getElementById('save-project').addEventListener('click', async () => {
-            const projectName = document.getElementById('project-name').value;
-            if (!projectName) return;
-            document.getElementById('save-project').innerText = "Saving...";
-            await addDoc(collection(db, "projects"), { name: projectName, createdAt: new Date() });
-            modal.classList.add('hidden');
-            document.getElementById('project-name').value = '';
-            document.getElementById('save-project').innerText = "Save";
+        // Projects
+        document.getElementById('save-project').onclick = async () => {
+            const val = document.getElementById('project-name').value;
+            if(!val) return;
+            await addDoc(collection(db, "projects"), { name: val, createdAt: Date.now() });
+            document.getElementById('project-modal').classList.add('hidden');
             loadProjects();
-        });
+        };
 
-        // Load Projects
         async function loadProjects() {
-            const querySnapshot = await getDocs(collection(db, "projects"));
-            const projectsList = document.getElementById('projects-list');
-            const emptyState = document.getElementById('empty-state');
-            projectsList.innerHTML = '';
-            
-            if (querySnapshot.empty) {
-                projectsList.appendChild(emptyState);
-                emptyState.classList.remove('hidden');
-            } else {
-                querySnapshot.forEach((docSnap) => {
-                    const project = docSnap.data();
-                    const card = document.createElement('div');
-                    card.className = "border border-gray-300 p-4 text-center hover:shadow-md cursor-pointer transition-shadow rounded-sm bg-white";
-                    card.innerHTML = `<h3 class="font-bold text-gray-900">${project.name}</h3>`;
-                    
-                    card.addEventListener('click', () => {
-                        currentProjectId = docSnap.id;
-                        document.getElementById('dashboard-box').classList.add('hidden');
-                        document.getElementById('project-details-box').classList.remove('hidden');
-                        document.getElementById('current-project-title').innerText = project.name;
-                    });
-                    projectsList.appendChild(card);
-                });
-            }
-        }
-
-        // Navigation Back Buttons
-        document.getElementById('back-to-projects').addEventListener('click', () => {
-            document.getElementById('project-details-box').classList.add('hidden');
-            document.getElementById('dashboard-box').classList.remove('hidden');
-        });
-        document.getElementById('back-to-project-details').addEventListener('click', () => {
-            document.getElementById('todos-view-box').classList.add('hidden');
-            document.getElementById('project-details-box').classList.remove('hidden');
-        });
-        document.getElementById('back-to-project-from-mb').addEventListener('click', () => {
-            document.getElementById('message-board-view-box').classList.add('hidden');
-            document.getElementById('project-details-box').classList.remove('hidden');
-        });
-
-        // --- TO-DOS LOGIC ---
-        document.getElementById('todos-card').addEventListener('click', () => {
-            document.getElementById('project-details-box').classList.add('hidden');
-            document.getElementById('todos-view-box').classList.remove('hidden');
-            loadTodos();
-        });
-
-        document.getElementById('add-todo-form').addEventListener('submit', async (e) => {
-            const title = document.getElementById('new-todo-input').value;
-            if (!title || !currentProjectId) return;
-            await addDoc(collection(db, "todos"), { projectId: currentProjectId, title: title, completed: false, createdAt: new Date() });
-            document.getElementById('new-todo-input').value = '';
-            loadTodos();
-        });
-
-        async function loadTodos() {
-            const q = query(collection(db, "todos"), where("projectId", "==", currentProjectId));
-            const querySnapshot = await getDocs(q);
-            const todoList = document.getElementById('todo-list');
-            todoList.innerHTML = '';
-            if (querySnapshot.empty) { todoList.innerHTML = '<li class="text-sm text-gray-500 py-4">No to-dos yet.</li>'; return; }
-
-            querySnapshot.forEach((docSnap) => {
-                const todo = docSnap.data();
-                const li = document.createElement('li');
-                li.className = "flex items-center gap-3 p-2 hover:bg-gray-50 border-b border-gray-100 last:border-0";
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = todo.completed;
-                checkbox.className = "w-4 h-4 cursor-pointer";
-                const span = document.createElement('span');
-                span.innerText = todo.title;
-                span.className = `text-sm ${todo.completed ? 'line-through text-gray-400' : 'text-gray-900'}`;
-                
-                checkbox.addEventListener('change', async () => {
-                    await updateDoc(doc(db, "todos", docSnap.id), { completed: checkbox.checked });
-                    span.className = `text-sm ${checkbox.checked ? 'line-through text-gray-400' : 'text-gray-900'}`;
-                });
-                li.appendChild(checkbox); li.appendChild(span); todoList.appendChild(li);
-            });
-        }
-
-        // --- MESSAGE BOARD LOGIC ---
-        document.getElementById('message-board-card').addEventListener('click', () => {
-            document.getElementById('project-details-box').classList.add('hidden');
-            document.getElementById('message-board-view-box').classList.remove('hidden');
-            loadMessages();
-        });
-
-        document.getElementById('new-message-form').addEventListener('submit', async (e) => {
-            const title = document.getElementById('msg-title').value;
-            const body = document.getElementById('msg-body').value;
-            if (!title || !body || !currentProjectId) return;
-            
-            document.getElementById('post-msg-btn').innerText = "Posting...";
-            await addDoc(collection(db, "messages"), { 
-                projectId: currentProjectId, 
-                title: title, 
-                body: body, 
-                author: currentUserEmail,
-                createdAt: Date.now() 
-            });
-            
-            document.getElementById('msg-title').value = '';
-            document.getElementById('msg-body').value = '';
-            document.getElementById('post-msg-btn').innerText = "Post Message";
-            loadMessages();
-        });
-
-        async function loadMessages() {
-            const q = query(collection(db, "messages"), where("projectId", "==", currentProjectId));
-            const querySnapshot = await getDocs(q);
-            const msgsList = document.getElementById('messages-list');
-            msgsList.innerHTML = '';
-            
-            if (querySnapshot.empty) { 
-                msgsList.innerHTML = '<div class="text-sm text-gray-500 py-4 text-center">No messages yet. Start a discussion!</div>'; 
-                return; 
-            }
-
-            // JavaScript mein sort kar rahay hain taake newest upar aaye (Firestore index ki zaroorat nahi)
-            const msgs = [];
-            querySnapshot.forEach(doc => msgs.push(doc.data()));
-            msgs.sort((a, b) => b.createdAt - a.createdAt);
-
-            msgs.forEach((msg) => {
+            const snap = await getDocs(collection(db, "projects"));
+            const list = document.getElementById('projects-list'); list.innerHTML = '';
+            snap.forEach(d => {
+                const p = d.data();
                 const div = document.createElement('div');
-                div.className = "border border-gray-300 p-4 rounded-sm bg-white";
-                div.innerHTML = `
-                    <h4 class="font-bold text-lg text-gray-900">${msg.title}</h4>
-                    <p class="text-xs text-gray-500 mb-3 border-b border-gray-100 pb-2">Posted by ${msg.author}</p>
-                    <p class="text-sm text-gray-800 whitespace-pre-wrap">${msg.body}</p>
-                `;
-                msgsList.appendChild(div);
+                div.className = "border p-4 text-center cursor-pointer hover:shadow-md bg-white font-bold";
+                div.innerText = p.name;
+                div.onclick = () => { currentProject = d.id; document.getElementById('current-project-title').innerText = p.name; showView('project-details-box'); };
+                list.appendChild(div);
+            });
+        }
+
+        // Generic Save
+        async function saveData(col, data, formId) {
+            await addDoc(collection(db, col), { ...data, projectId: currentProject, createdAt: Date.now() });
+            document.getElementById(formId).reset();
+        }
+
+        // Generic Load
+        async function loadData(col, elId, renderFunc) {
+            const q = query(collection(db, col), where("projectId", "==", currentProject));
+            const snap = await getDocs(q);
+            const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() }));
+            arr.sort((a, b) => a.createdAt - b.createdAt); // sort by time
+            
+            const el = document.getElementById(elId); el.innerHTML = '';
+            arr.forEach(item => el.appendChild(renderFunc(item)));
+        }
+
+        // Forms Submits
+        document.getElementById('msg-form').onsubmit = (e) => { e.preventDefault(); saveData('messages', { title: document.getElementById('msg-title').value, body: document.getElementById('msg-body').value, author: userEmail }, 'msg-form').then(() => openFeature('message-board')); };
+        document.getElementById('todo-form').onsubmit = (e) => { e.preventDefault(); saveData('todos', { title: document.getElementById('todo-input').value, completed: false }, 'todo-form').then(() => openFeature('todos')); };
+        document.getElementById('doc-form').onsubmit = (e) => { e.preventDefault(); saveData('docs', { title: document.getElementById('doc-title').value, body: document.getElementById('doc-body').value }, 'doc-form').then(() => openFeature('docs')); };
+        document.getElementById('schedule-form').onsubmit = (e) => { e.preventDefault(); saveData('schedule', { title: document.getElementById('event-title').value, date: document.getElementById('event-date').value }, 'schedule-form').then(() => openFeature('schedule')); };
+        
+        // Chat Submit
+        document.getElementById('chat-form').onsubmit = async (e) => {
+            e.preventDefault();
+            await addDoc(collection(db, "chats"), { text: document.getElementById('chat-input').value, author: userEmail, projectId: currentProject, createdAt: Date.now() });
+            document.getElementById('chat-form').reset();
+        };
+
+        // Render Functions
+        function renderMsg(m) { const d=document.createElement('div'); d.className="border p-4 bg-gray-50"; d.innerHTML=`<b>${m.title}</b><br><small>${m.author}</small><p class="mt-2 text-sm">${m.body}</p>`; return d; }
+        function renderDoc(m) { const d=document.createElement('div'); d.className="border p-4 bg-gray-50"; d.innerHTML=`<b>${m.title}</b><p class="mt-2 text-sm truncate">${m.body}</p>`; return d; }
+        function renderEvent(m) { const d=document.createElement('li'); d.className="border-b p-2"; d.innerHTML=`<b>${m.date}</b> - ${m.title}`; return d; }
+        function renderTodo(t) {
+            const li = document.createElement('li'); li.className = "flex gap-2 p-2 border-b";
+            const chk = document.createElement('input'); chk.type = "checkbox"; chk.checked = t.completed;
+            chk.onchange = () => updateDoc(doc(db, "todos", t.id), { completed: chk.checked }).then(() => openFeature('todos'));
+            const sp = document.createElement('span'); sp.innerText = t.title; sp.className = t.completed ? "line-through text-gray-400" : "";
+            li.append(chk, sp); return li;
+        }
+
+        // Live Chat Listener
+        function loadChat() {
+            const q = query(collection(db, "chats"), where("projectId", "==", currentProject));
+            unsubscribeChat = onSnapshot(q, (snap) => {
+                const arr = []; snap.forEach(d => arr.push(d.data()));
+                arr.sort((a, b) => a.createdAt - b.createdAt);
+                const box = document.getElementById('chat-box'); box.innerHTML = '';
+                arr.forEach(c => { box.innerHTML += `<div class="p-2 border-b bg-white"><b class="text-xs text-blue-600">${c.author}:</b> <span class="text-sm">${c.text}</span></div>`; });
+                box.scrollTop = box.scrollHeight;
             });
         }
     </script>
