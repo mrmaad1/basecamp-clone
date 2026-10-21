@@ -66,7 +66,8 @@
                 <h2 id="current-project-title" class="text-2xl font-bold text-gray-900 mb-8 text-center border-b border-gray-200 pb-4">Project Name</h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="border border-gray-300 p-6 text-center hover:shadow-md cursor-pointer rounded-sm bg-[#f9f9f9]">
+                    <!-- MESSAGE BOARD CARD -->
+                    <div id="message-board-card" class="border border-gray-300 p-6 text-center hover:shadow-md cursor-pointer rounded-sm bg-[#f9f9f9]">
                         <h3 class="font-bold text-gray-900 mb-2">Message Board</h3>
                         <p class="text-xs text-gray-500">Post announcements, pitch ideas, ask questions.</p>
                     </div>
@@ -75,10 +76,34 @@
                         <h3 class="font-bold text-gray-900 mb-2">To-dos</h3>
                         <p class="text-xs text-gray-500">Make lists of work that needs to get done.</p>
                     </div>
+                    <!-- DOCS CARD (Next) -->
                     <div class="border border-gray-300 p-6 text-center hover:shadow-md cursor-pointer rounded-sm bg-[#f9f9f9]">
                         <h3 class="font-bold text-gray-900 mb-2">Docs & Files</h3>
                         <p class="text-xs text-gray-500">Share docs, files, images, and spreadsheets.</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MESSAGE BOARD VIEW -->
+        <div id="message-board-view-box" class="hidden max-w-4xl w-full">
+            <div class="mb-4">
+                <button id="back-to-project-from-mb" class="text-sm text-blue-600 hover:underline">&larr; Back to Project</button>
+            </div>
+            <div class="bg-white border border-gray-300 p-8 shadow-sm">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-4">Message Board</h2>
+                
+                <div class="mb-8 bg-[#f4f4f0] p-4 border border-gray-300 rounded-sm">
+                    <h3 class="font-bold text-gray-900 mb-3 text-sm">Post a new message</h3>
+                    <form id="new-message-form" class="space-y-3" onsubmit="event.preventDefault();">
+                        <input type="text" id="msg-title" required class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm" placeholder="Message title...">
+                        <textarea id="msg-body" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm" placeholder="Write your message here..."></textarea>
+                        <button type="submit" id="post-msg-btn" class="bc-btn text-white px-4 py-2 text-sm rounded-sm font-semibold">Post Message</button>
+                    </form>
+                </div>
+
+                <div id="messages-list" class="space-y-4">
+                    <!-- Messages yahan aayengi -->
                 </div>
             </div>
         </div>
@@ -96,9 +121,7 @@
                     <button type="submit" id="add-todo-btn" class="bc-btn text-white px-4 py-2 text-sm rounded-sm font-semibold">Add</button>
                 </form>
 
-                <ul id="todo-list" class="space-y-1">
-                    <!-- Tasks will load here -->
-                </ul>
+                <ul id="todo-list" class="space-y-1"></ul>
             </div>
         </div>
 
@@ -106,7 +129,7 @@
         <div id="project-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
             <div class="bg-white p-6 rounded-sm shadow-lg w-96 border border-gray-300">
                 <h3 class="text-lg font-bold mb-4">Name this project</h3>
-                <input type="text" id="project-name" class="w-full px-3 py-2 border border-gray-300 rounded-sm mb-4 text-sm" placeholder="e.g. Website Redesign">
+                <input type="text" id="project-name" class="w-full px-3 py-2 border border-gray-300 rounded-sm mb-4 text-sm">
                 <div class="flex justify-end space-x-2">
                     <button id="cancel-modal" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900">Cancel</button>
                     <button id="save-project" class="bc-btn text-white px-3 py-1.5 text-sm rounded-sm font-semibold">Save</button>
@@ -120,7 +143,6 @@
         Basecamp &bull; The happier, calmer way to work in groups.
     </footer>
 
-    <!-- Firebase Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
@@ -139,7 +161,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentProjectId = null; // Active project track karne ke liye
+        let currentProjectId = null;
+        let currentUserEmail = null;
 
         // Login
         document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -149,10 +172,11 @@
             document.getElementById('login-btn').innerText = "Logging in...";
             
             signInWithEmailAndPassword(auth, email, password)
-                .then(() => {
+                .then((userCred) => {
+                    currentUserEmail = userCred.user.email;
                     document.getElementById('auth-box').classList.add('hidden');
                     document.getElementById('dashboard-box').classList.remove('hidden');
-                    document.getElementById('user-status').innerText = email;
+                    document.getElementById('user-status').innerText = currentUserEmail;
                     loadProjects();
                 })
                 .catch((error) => {
@@ -164,26 +188,18 @@
         // Project Modal
         const modal = document.getElementById('project-modal');
         document.getElementById('new-project-btn').addEventListener('click', () => modal.classList.remove('hidden'));
-        document.getElementById('cancel-modal').addEventListener('click', () => {
-            modal.classList.add('hidden');
-            document.getElementById('project-name').value = '';
-        });
+        document.getElementById('cancel-modal').addEventListener('click', () => { modal.classList.add('hidden'); });
 
         // Save Project
         document.getElementById('save-project').addEventListener('click', async () => {
             const projectName = document.getElementById('project-name').value;
             if (!projectName) return;
             document.getElementById('save-project').innerText = "Saving...";
-            try {
-                await addDoc(collection(db, "projects"), { name: projectName, createdAt: new Date() });
-                modal.classList.add('hidden');
-                document.getElementById('project-name').value = '';
-                document.getElementById('save-project').innerText = "Save";
-                loadProjects();
-            } catch (e) {
-                alert("Error saving project.");
-                document.getElementById('save-project').innerText = "Save";
-            }
+            await addDoc(collection(db, "projects"), { name: projectName, createdAt: new Date() });
+            modal.classList.add('hidden');
+            document.getElementById('project-name').value = '';
+            document.getElementById('save-project').innerText = "Save";
+            loadProjects();
         });
 
         // Load Projects
@@ -199,14 +215,12 @@
             } else {
                 querySnapshot.forEach((docSnap) => {
                     const project = docSnap.data();
-                    const projectId = docSnap.id;
                     const card = document.createElement('div');
                     card.className = "border border-gray-300 p-4 text-center hover:shadow-md cursor-pointer transition-shadow rounded-sm bg-white";
                     card.innerHTML = `<h3 class="font-bold text-gray-900">${project.name}</h3>`;
                     
-                    // Click Project
                     card.addEventListener('click', () => {
-                        currentProjectId = projectId; // ID save kar li
+                        currentProjectId = docSnap.id;
                         document.getElementById('dashboard-box').classList.add('hidden');
                         document.getElementById('project-details-box').classList.remove('hidden');
                         document.getElementById('current-project-title').innerText = project.name;
@@ -225,70 +239,105 @@
             document.getElementById('todos-view-box').classList.add('hidden');
             document.getElementById('project-details-box').classList.remove('hidden');
         });
+        document.getElementById('back-to-project-from-mb').addEventListener('click', () => {
+            document.getElementById('message-board-view-box').classList.add('hidden');
+            document.getElementById('project-details-box').classList.remove('hidden');
+        });
 
-        // Open To-dos
+        // --- TO-DOS LOGIC ---
         document.getElementById('todos-card').addEventListener('click', () => {
             document.getElementById('project-details-box').classList.add('hidden');
             document.getElementById('todos-view-box').classList.remove('hidden');
             loadTodos();
         });
 
-        // Add To-do
         document.getElementById('add-todo-form').addEventListener('submit', async (e) => {
             const title = document.getElementById('new-todo-input').value;
             if (!title || !currentProjectId) return;
-            
-            document.getElementById('add-todo-btn').innerText = "...";
-            try {
-                await addDoc(collection(db, "todos"), {
-                    projectId: currentProjectId,
-                    title: title,
-                    completed: false,
-                    createdAt: new Date()
-                });
-                document.getElementById('new-todo-input').value = '';
-                loadTodos();
-            } catch (error) {
-                alert("Error adding task.");
-            }
-            document.getElementById('add-todo-btn').innerText = "Add";
+            await addDoc(collection(db, "todos"), { projectId: currentProjectId, title: title, completed: false, createdAt: new Date() });
+            document.getElementById('new-todo-input').value = '';
+            loadTodos();
         });
 
-        // Load To-dos
         async function loadTodos() {
             const q = query(collection(db, "todos"), where("projectId", "==", currentProjectId));
             const querySnapshot = await getDocs(q);
             const todoList = document.getElementById('todo-list');
             todoList.innerHTML = '';
-            
-            if (querySnapshot.empty) {
-                todoList.innerHTML = '<li class="text-sm text-gray-500 py-4">No to-dos yet. Create one!</li>';
-                return;
-            }
+            if (querySnapshot.empty) { todoList.innerHTML = '<li class="text-sm text-gray-500 py-4">No to-dos yet.</li>'; return; }
 
             querySnapshot.forEach((docSnap) => {
                 const todo = docSnap.data();
                 const li = document.createElement('li');
                 li.className = "flex items-center gap-3 p-2 hover:bg-gray-50 border-b border-gray-100 last:border-0";
-                
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.checked = todo.completed;
                 checkbox.className = "w-4 h-4 cursor-pointer";
-                
                 const span = document.createElement('span');
                 span.innerText = todo.title;
                 span.className = `text-sm ${todo.completed ? 'line-through text-gray-400' : 'text-gray-900'}`;
-
-                // Checkbox update database logic
+                
                 checkbox.addEventListener('change', async () => {
                     await updateDoc(doc(db, "todos", docSnap.id), { completed: checkbox.checked });
                     span.className = `text-sm ${checkbox.checked ? 'line-through text-gray-400' : 'text-gray-900'}`;
                 });
+                li.appendChild(checkbox); li.appendChild(span); todoList.appendChild(li);
+            });
+        }
 
-                li.appendChild(checkbox);
-                li.appendChild(span);
-                todoList.appendChild(li);
+        // --- MESSAGE BOARD LOGIC ---
+        document.getElementById('message-board-card').addEventListener('click', () => {
+            document.getElementById('project-details-box').classList.add('hidden');
+            document.getElementById('message-board-view-box').classList.remove('hidden');
+            loadMessages();
+        });
+
+        document.getElementById('new-message-form').addEventListener('submit', async (e) => {
+            const title = document.getElementById('msg-title').value;
+            const body = document.getElementById('msg-body').value;
+            if (!title || !body || !currentProjectId) return;
+            
+            document.getElementById('post-msg-btn').innerText = "Posting...";
+            await addDoc(collection(db, "messages"), { 
+                projectId: currentProjectId, 
+                title: title, 
+                body: body, 
+                author: currentUserEmail,
+                createdAt: Date.now() 
+            });
+            
+            document.getElementById('msg-title').value = '';
+            document.getElementById('msg-body').value = '';
+            document.getElementById('post-msg-btn').innerText = "Post Message";
+            loadMessages();
+        });
+
+        async function loadMessages() {
+            const q = query(collection(db, "messages"), where("projectId", "==", currentProjectId));
+            const querySnapshot = await getDocs(q);
+            const msgsList = document.getElementById('messages-list');
+            msgsList.innerHTML = '';
+            
+            if (querySnapshot.empty) { 
+                msgsList.innerHTML = '<div class="text-sm text-gray-500 py-4 text-center">No messages yet. Start a discussion!</div>'; 
+                return; 
+            }
+
+            // JavaScript mein sort kar rahay hain taake newest upar aaye (Firestore index ki zaroorat nahi)
+            const msgs = [];
+            querySnapshot.forEach(doc => msgs.push(doc.data()));
+            msgs.sort((a, b) => b.createdAt - a.createdAt);
+
+            msgs.forEach((msg) => {
+                const div = document.createElement('div');
+                div.className = "border border-gray-300 p-4 rounded-sm bg-white";
+                div.innerHTML = `
+                    <h4 class="font-bold text-lg text-gray-900">${msg.title}</h4>
+                    <p class="text-xs text-gray-500 mb-3 border-b border-gray-100 pb-2">Posted by ${msg.author}</p>
+                    <p class="text-sm text-gray-800 whitespace-pre-wrap">${msg.body}</p>
+                `;
+                msgsList.appendChild(div);
             });
         }
     </script>
