@@ -27,9 +27,8 @@
         <!-- Login Card -->
         <div id="auth-box" class="max-w-sm w-full bg-white border border-gray-300 p-8 shadow-sm">
             <h1 class="text-xl font-bold text-gray-900 mb-1">Log in to your account</h1>
-            <p class="text-xs text-gray-500 mb-6">Access your projects, chats, and to-dos.</p>
             
-            <form id="login-form" class="space-y-4" onsubmit="event.preventDefault();">
+            <form id="login-form" class="space-y-4 mt-6" onsubmit="event.preventDefault();">
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Email address</label>
                     <input type="email" id="email" required class="w-full px-3 py-2 border border-gray-300 rounded-sm text-sm">
@@ -71,7 +70,8 @@
                         <h3 class="font-bold text-gray-900 mb-2">Message Board</h3>
                         <p class="text-xs text-gray-500">Post announcements, pitch ideas, ask questions.</p>
                     </div>
-                    <div class="border border-gray-300 p-6 text-center hover:shadow-md cursor-pointer rounded-sm bg-[#f9f9f9]">
+                    <!-- TO-DOS CARD -->
+                    <div id="todos-card" class="border border-gray-300 p-6 text-center hover:shadow-md cursor-pointer rounded-sm bg-[#f9f9f9]">
                         <h3 class="font-bold text-gray-900 mb-2">To-dos</h3>
                         <p class="text-xs text-gray-500">Make lists of work that needs to get done.</p>
                     </div>
@@ -80,6 +80,25 @@
                         <p class="text-xs text-gray-500">Share docs, files, images, and spreadsheets.</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- TO-DOS VIEW -->
+        <div id="todos-view-box" class="hidden max-w-4xl w-full">
+            <div class="mb-4">
+                <button id="back-to-project-details" class="text-sm text-blue-600 hover:underline">&larr; Back to Project</button>
+            </div>
+            <div class="bg-white border border-gray-300 p-8 shadow-sm">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-4">To-dos</h2>
+                
+                <form id="add-todo-form" class="mb-6 flex gap-2" onsubmit="event.preventDefault();">
+                    <input type="text" id="new-todo-input" required class="flex-grow px-3 py-2 border border-gray-300 rounded-sm text-sm" placeholder="Add a new to-do...">
+                    <button type="submit" id="add-todo-btn" class="bc-btn text-white px-4 py-2 text-sm rounded-sm font-semibold">Add</button>
+                </form>
+
+                <ul id="todo-list" class="space-y-1">
+                    <!-- Tasks will load here -->
+                </ul>
             </div>
         </div>
 
@@ -101,10 +120,11 @@
         Basecamp &bull; The happier, calmer way to work in groups.
     </footer>
 
+    <!-- Firebase Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZixKsX7KqsfYZMm31rnPwLy7ha25pzo8",
@@ -119,6 +139,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        let currentProjectId = null; // Active project track karne ke liye
+
+        // Login
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
@@ -138,6 +161,7 @@
                 });
         });
 
+        // Project Modal
         const modal = document.getElementById('project-modal');
         document.getElementById('new-project-btn').addEventListener('click', () => modal.classList.remove('hidden'));
         document.getElementById('cancel-modal').addEventListener('click', () => {
@@ -145,6 +169,7 @@
             document.getElementById('project-name').value = '';
         });
 
+        // Save Project
         document.getElementById('save-project').addEventListener('click', async () => {
             const projectName = document.getElementById('project-name').value;
             if (!projectName) return;
@@ -161,6 +186,7 @@
             }
         });
 
+        // Load Projects
         async function loadProjects() {
             const querySnapshot = await getDocs(collection(db, "projects"));
             const projectsList = document.getElementById('projects-list');
@@ -171,29 +197,100 @@
                 projectsList.appendChild(emptyState);
                 emptyState.classList.remove('hidden');
             } else {
-                querySnapshot.forEach((doc) => {
-                    const project = doc.data();
+                querySnapshot.forEach((docSnap) => {
+                    const project = docSnap.data();
+                    const projectId = docSnap.id;
                     const card = document.createElement('div');
                     card.className = "border border-gray-300 p-4 text-center hover:shadow-md cursor-pointer transition-shadow rounded-sm bg-white";
                     card.innerHTML = `<h3 class="font-bold text-gray-900">${project.name}</h3>`;
                     
-                    // ON CLICK PROJECT CARD
+                    // Click Project
                     card.addEventListener('click', () => {
+                        currentProjectId = projectId; // ID save kar li
                         document.getElementById('dashboard-box').classList.add('hidden');
                         document.getElementById('project-details-box').classList.remove('hidden');
                         document.getElementById('current-project-title').innerText = project.name;
                     });
-
                     projectsList.appendChild(card);
                 });
             }
         }
 
-        // BACK TO PROJECTS BUTTON
+        // Navigation Back Buttons
         document.getElementById('back-to-projects').addEventListener('click', () => {
             document.getElementById('project-details-box').classList.add('hidden');
             document.getElementById('dashboard-box').classList.remove('hidden');
         });
+        document.getElementById('back-to-project-details').addEventListener('click', () => {
+            document.getElementById('todos-view-box').classList.add('hidden');
+            document.getElementById('project-details-box').classList.remove('hidden');
+        });
+
+        // Open To-dos
+        document.getElementById('todos-card').addEventListener('click', () => {
+            document.getElementById('project-details-box').classList.add('hidden');
+            document.getElementById('todos-view-box').classList.remove('hidden');
+            loadTodos();
+        });
+
+        // Add To-do
+        document.getElementById('add-todo-form').addEventListener('submit', async (e) => {
+            const title = document.getElementById('new-todo-input').value;
+            if (!title || !currentProjectId) return;
+            
+            document.getElementById('add-todo-btn').innerText = "...";
+            try {
+                await addDoc(collection(db, "todos"), {
+                    projectId: currentProjectId,
+                    title: title,
+                    completed: false,
+                    createdAt: new Date()
+                });
+                document.getElementById('new-todo-input').value = '';
+                loadTodos();
+            } catch (error) {
+                alert("Error adding task.");
+            }
+            document.getElementById('add-todo-btn').innerText = "Add";
+        });
+
+        // Load To-dos
+        async function loadTodos() {
+            const q = query(collection(db, "todos"), where("projectId", "==", currentProjectId));
+            const querySnapshot = await getDocs(q);
+            const todoList = document.getElementById('todo-list');
+            todoList.innerHTML = '';
+            
+            if (querySnapshot.empty) {
+                todoList.innerHTML = '<li class="text-sm text-gray-500 py-4">No to-dos yet. Create one!</li>';
+                return;
+            }
+
+            querySnapshot.forEach((docSnap) => {
+                const todo = docSnap.data();
+                const li = document.createElement('li');
+                li.className = "flex items-center gap-3 p-2 hover:bg-gray-50 border-b border-gray-100 last:border-0";
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = todo.completed;
+                checkbox.className = "w-4 h-4 cursor-pointer";
+                
+                const span = document.createElement('span');
+                span.innerText = todo.title;
+                span.className = `text-sm ${todo.completed ? 'line-through text-gray-400' : 'text-gray-900'}`;
+
+                // Checkbox update database logic
+                checkbox.addEventListener('change', async () => {
+                    await updateDoc(doc(db, "todos", docSnap.id), { completed: checkbox.checked });
+                    span.className = `text-sm ${checkbox.checked ? 'line-through text-gray-400' : 'text-gray-900'}`;
+                });
+
+                li.appendChild(checkbox);
+                li.appendChild(span);
+                todoList.appendChild(li);
+            });
+        }
     </script>
 </body>
 </html>
