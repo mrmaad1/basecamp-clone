@@ -14,18 +14,14 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between antialiased">
 
-    <!-- Basecamp Global Header -->
     <header class="bg-white border-b border-gray-300 px-6 py-3 flex justify-between items-center">
         <div class="flex items-center space-x-2">
             <div class="w-6 h-6 bg-[#1a365d] rounded-sm flex items-center justify-center text-white font-bold text-xs">BC</div>
             <span class="text-lg font-bold tracking-tight text-gray-900">Basecamp</span>
         </div>
-        <div id="user-status" class="text-xs text-gray-500 font-medium">
-            Not signed in
-        </div>
+        <div id="user-status" class="text-xs text-gray-500 font-medium">Not signed in</div>
     </header>
 
-    <!-- Main Workspace Container -->
     <main class="flex-grow flex items-center justify-center px-4 py-12">
         
         <!-- Login Card -->
@@ -33,7 +29,6 @@
             <h1 class="text-xl font-bold text-gray-900 mb-1">Log in to your account</h1>
             <p class="text-xs text-gray-500 mb-6">Access your projects, chats, and to-dos.</p>
             
-            <!-- YAHAN ONSUBMIT ADD KIYA HAI TAAKE PAGE REFRESH NA HO -->
             <form id="login-form" class="space-y-4" onsubmit="event.preventDefault();">
                 <div>
                     <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Email address</label>
@@ -43,37 +38,51 @@
                     <label class="block text-xs font-bold uppercase text-gray-700 mb-1">Password</label>
                     <input type="password" id="password" required class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:outline-none focus:border-blue-500 text-sm">
                 </div>
-                <button type="submit" id="login-btn" class="w-full bc-btn text-white font-semibold py-2 px-4 rounded-sm text-sm">
-                    Log in
-                </button>
+                <button type="submit" id="login-btn" class="w-full bc-btn text-white font-semibold py-2 px-4 rounded-sm text-sm">Log in</button>
             </form>
         </div>
 
         <!-- Project Dashboard -->
-        <div id="dashboard-box" class="hidden max-w-3xl w-full bg-white border border-gray-300 p-8 shadow-sm">
-            <div class="border-b border-gray-200 pb-4 mb-6 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-900">Your Projects</h2>
-                <button class="bc-btn text-white text-xs font-semibold px-3 py-1.5 rounded-sm">Make a new project</button>
+        <div id="dashboard-box" class="hidden max-w-4xl w-full">
+            <div class="bg-white border border-gray-300 p-8 shadow-sm mb-6">
+                <div class="border-b border-gray-200 pb-4 mb-6 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-900">Your Projects</h2>
+                    <button id="new-project-btn" class="bc-btn text-white text-xs font-semibold px-3 py-1.5 rounded-sm">Make a new project</button>
+                </div>
+                
+                <!-- Projects List Container -->
+                <div id="projects-list" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div id="empty-state" class="col-span-full text-center py-12 border-2 border-dashed border-gray-200 text-gray-500 text-sm">
+                        <p class="mb-2">You don't have any active projects yet.</p>
+                        <span class="text-xs text-blue-600">Click "Make a new project" to get started</span>
+                    </div>
+                </div>
             </div>
-            <div class="text-center py-12 border-2 border-dashed border-gray-200 text-gray-500 text-sm">
-                <p class="mb-2">You don't have any active projects yet.</p>
-                <span class="text-xs text-blue-600 underline cursor-pointer">Create your first project to get started</span>
+        </div>
+
+        <!-- New Project Modal -->
+        <div id="project-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-sm shadow-lg w-96 border border-gray-300">
+                <h3 class="text-lg font-bold mb-4">Name this project</h3>
+                <input type="text" id="project-name" class="w-full px-3 py-2 border border-gray-300 rounded-sm mb-4 text-sm focus:outline-none focus:border-blue-500" placeholder="e.g. Website Redesign">
+                <div class="flex justify-end space-x-2">
+                    <button id="cancel-modal" class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900">Cancel</button>
+                    <button id="save-project" class="bc-btn text-white px-3 py-1.5 text-sm rounded-sm font-semibold">Save</button>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Footer -->
     <footer class="text-center py-4 text-xs text-gray-400 border-t border-gray-200 bg-white">
         Basecamp &bull; The happier, calmer way to work in groups.
     </footer>
 
-    <!-- Firebase Authentication Logic -->
+    <!-- Firebase Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
-
-        console.log("Firebase script loading...");
+        import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCZixKsX7KqsfYZMm31rnPwLy7ha25pzo8",
@@ -86,32 +95,83 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        
-        console.log("Firebase Initialized Successfully!");
+        const db = getFirestore(app);
 
+        // --- LOGIN LOGIC ---
         document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault(); // Double protection against refresh
-            console.log("Login button clicked! Trying to authenticate...");
-            
+            e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            
-            // Change button text to show it's working
             document.getElementById('login-btn').innerText = "Logging in...";
             
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    console.log("Login Success!", userCredential.user.email);
+                .then(() => {
                     document.getElementById('auth-box').classList.add('hidden');
                     document.getElementById('dashboard-box').classList.remove('hidden');
-                    document.getElementById('user-status').innerText = userCredential.user.email;
+                    document.getElementById('user-status').innerText = email;
+                    loadProjects(); // Login ke baad projects load karo
                 })
                 .catch((error) => {
-                    console.error("Login Error:", error.code, error.message);
                     alert("Error: " + error.message);
                     document.getElementById('login-btn').innerText = "Log in";
                 });
         });
+
+        // --- MODAL LOGIC ---
+        const modal = document.getElementById('project-modal');
+        document.getElementById('new-project-btn').addEventListener('click', () => {
+            modal.classList.remove('hidden');
+        });
+        document.getElementById('cancel-modal').addEventListener('click', () => {
+            modal.classList.add('hidden');
+            document.getElementById('project-name').value = '';
+        });
+
+        // --- SAVE PROJECT TO DATABASE ---
+        document.getElementById('save-project').addEventListener('click', async () => {
+            const projectName = document.getElementById('project-name').value;
+            if (!projectName) return alert("Please enter a project name!");
+            
+            document.getElementById('save-project').innerText = "Saving...";
+            
+            try {
+                await addDoc(collection(db, "projects"), {
+                    name: projectName,
+                    createdAt: new Date()
+                });
+                
+                modal.classList.add('hidden');
+                document.getElementById('project-name').value = '';
+                document.getElementById('save-project').innerText = "Save";
+                loadProjects(); // Naya project list mein dikhao
+            } catch (e) {
+                alert("Error saving project: " + e.message);
+                document.getElementById('save-project').innerText = "Save";
+            }
+        });
+
+        // --- LOAD PROJECTS FROM DATABASE ---
+        async function loadProjects() {
+            const querySnapshot = await getDocs(collection(db, "projects"));
+            const projectsList = document.getElementById('projects-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            // Purane projects clear karo (sirf empty state chhor do)
+            projectsList.innerHTML = '';
+            
+            if (querySnapshot.empty) {
+                projectsList.appendChild(emptyState);
+                emptyState.classList.remove('hidden');
+            } else {
+                querySnapshot.forEach((doc) => {
+                    const project = doc.data();
+                    const card = document.createElement('div');
+                    card.className = "border border-gray-300 p-4 text-center hover:shadow-md cursor-pointer transition-shadow rounded-sm bg-white";
+                    card.innerHTML = `<h3 class="font-bold text-gray-900">${project.name}</h3>`;
+                    projectsList.appendChild(card);
+                });
+            }
+        }
     </script>
 </body>
 </html>
